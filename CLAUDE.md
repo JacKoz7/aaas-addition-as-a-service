@@ -893,7 +893,7 @@ Format: `ID | Krok | Wymaga | Rezultat`.
 | P2.10 | `digit-7` (Gleam) | P2.3 | Cyfra 7 |
 | P2.11 | `digit-8` (D) | P2.3 | Cyfra 8 |
 | P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | P2.3 | Komplet cyfr |
-| P2.13 | `carry` (Elixir, Mnesia) + `successor` liczy n+1 przez serwisy cyfr i carry; usuń `TEMPORARY(P2.13)` | P2.1, P2.12 | Prawdziwe Peano |
+| P2.13 | `carry` (Elixir, Mnesia) + `successor` liczy n+1 przez serwisy cyfr i carry, serwuje gRPC `Next` na 9090 (ADR-0020); usuń `TEMPORARY(P2.13)` | P2.1, P2.12 | Prawdziwe Peano |
 | P2.14 | `validator` (Rust, MariaDB): zakres 0–99 999 | P2.1 | Walidacja |
 | P2.15 | `commutator` (Zig, LMDB): a ≥ b | P2.1 | Mniej wywołań |
 | P2.16 | `operator-registry` (Crystal, PostgreSQL): `+` → `addition` | P2.1 | Katalog operacji |
@@ -906,7 +906,7 @@ Format: `ID | Krok | Wymaga | Rezultat`.
 | --- | --- | --- | --- |
 | P3.1 | `schema-registry` (Apicurio, PostgreSQL): rejestracja wszystkich schematów z `contracts/events/` przy starcie, producenci walidują przed wysłaniem | P1.3 | Rejestr schematów |
 | P3.2 | Temporal server + UI + PostgreSQL w `compose/core.yml` | P0.3 | Temporal działa |
-| P3.3 | `saga-orchestrator` (Go): `AdditionWorkflow`, aktywności `resolveDigits`, `successor`, continue-as-new co 1000, Query z postępem, `GET /api/v1/tasks/{id}`; usuń `TEMPORARY(P3.3)` z ledgera | P3.2, P2.18 | Saga liczy |
+| P3.3 | `saga-orchestrator` (Go): `AdditionWorkflow`, aktywności `resolveDigits`, `successor`, continue-as-new co 1000, Query z postępem, `GET /api/v1/tasks/{id}`; usuń `TEMPORARY(P3.3)` z ledgera i HTTP `POST /v1/next` z successora (ADR-0016) | P3.2, P2.18 | Saga liczy |
 | P3.4 | Outbox w `saga_db` + `outbox-relay` (Debezium, outbox event router) publikuje `result.voted`; ledger konsumuje `result.voted` zamiast `addition.requested` | P3.3 | Gwarancja dostarczenia |
 | P3.5 | `distributed-lock` (etcd) + ledger bierze blokadę `ledger-append` | P3.4 | Kolejność wpisów |
 | P3.6 | `dead-letter` (Perl, MongoDB): `aaas.dlq.v1`, backoff, max 5 prób, sygnał `compensate` do sagi; wszyscy konsumenci wysyłają do DLQ | P3.3 | Ponowienia i kompensacja |

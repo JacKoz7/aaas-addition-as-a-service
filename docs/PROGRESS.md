@@ -67,7 +67,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.10 | `digit-7` (Gleam) | TODO | | | |
 | P2.11 | `digit-8` (D) | TODO | | | |
 | P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | TODO | | | |
-| P2.13 | `carry` (Elixir, Mnesia) + `successor` computes n+1 through digit services and carry; remove `TEMPORARY(P2.13)` | TODO | | | |
+| P2.13 | `carry` (Elixir, Mnesia) + `successor` computes n+1 through digit services and carry, serves gRPC `Next` on 9090 (ADR-0020); remove `TEMPORARY(P2.13)` | TODO | | | |
 | P2.14 | `validator` (Rust, MariaDB): range 0–99 999 | TODO | | | |
 | P2.15 | `commutator` (Zig, LMDB): a ≥ b | TODO | | | |
 | P2.16 | `operator-registry` (Crystal, PostgreSQL): `+` → `addition` | TODO | | | |
@@ -80,7 +80,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | --- | --- | --- | --- | --- | --- |
 | P3.1 | `schema-registry` (Apicurio, PostgreSQL): registration of all schemas from `contracts/events/` at startup, producers validate before publishing | TODO | | | |
 | P3.2 | Temporal server + UI + PostgreSQL in `compose/core.yml` | TODO | | | |
-| P3.3 | `saga-orchestrator` (Go): `AdditionWorkflow`, activities `resolveDigits`, `successor`, continue-as-new every 1000, progress Query, `GET /api/v1/tasks/{id}`; remove `TEMPORARY(P3.3)` from ledger | TODO | | | |
+| P3.3 | `saga-orchestrator` (Go): `AdditionWorkflow`, activities `resolveDigits`, `successor`, continue-as-new every 1000, progress Query, `GET /api/v1/tasks/{id}`; remove `TEMPORARY(P3.3)` from ledger and HTTP `POST /v1/next` from successor (ADR-0016) | TODO | | | |
 | P3.4 | Outbox in `saga_db` + `outbox-relay` (Debezium, outbox event router) publishes `result.voted`; ledger consumes `result.voted` instead of `addition.requested` | TODO | | | |
 | P3.5 | `distributed-lock` (etcd) + ledger takes the `ledger-append` lock | TODO | | | |
 | P3.6 | `dead-letter` (Perl, MongoDB): `aaas.dlq.v1`, backoff, max 5 attempts, `compensate` signal to the saga; all consumers send to DLQ | TODO | | | |

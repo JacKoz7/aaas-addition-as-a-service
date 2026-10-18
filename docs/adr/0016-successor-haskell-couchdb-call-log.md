@@ -110,3 +110,17 @@ apply.
   retention job (R-014).
 - Measured: 2.0 ms per call (p50) and 5.7 ms (p99) with a keep-alive
   caller, so the successor alone needs about 4 minutes for 99 999 calls.
+
+## Amendment (P2.1, 2026-10-18)
+
+The contracts of P2.1 exist (`contracts/proto/aaas/successor/v1/`,
+ADR-0020), and `NextRequest` carries `task_id` next to `n`, so the call
+log key `<taskId>:<n>` above stays valid for gRPC. The move to gRPC is
+re-planned instead of happening in P2.1:
+
+- P2.13, which rewrites the successor to query the digit services and
+  `carry`, adds the gRPC method `Next` on port 9090.
+- `POST /v1/next` stays for the ledger, which has no gRPC client (Nim has
+  no mature gRPC library), until P3.3 moves the counting to the saga (Go,
+  gRPC) and removes it. The markers are now `TEMPORARY(P3.3)` in the
+  successor and the ledger.
