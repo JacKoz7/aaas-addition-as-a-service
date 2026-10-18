@@ -12,11 +12,11 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Field | Value |
 | --- | --- |
 | Current phase | Phase 2 — Digits, carries, parsing (M2) |
-| Last completed step | P2.6 — `digit-3` (Free Pascal) |
-| Last completed at | 2026-10-18 15:26 CEST |
-| Snapshot tag | step/P2.6 |
-| Step in progress | P2.7 — `digit-4` (Lua) |
-| Next step | P2.7 — `digit-4` (Lua) |
+| Last completed step | P2.7 — `digit-4` (Lua) |
+| Last completed at | 2026-10-18 20:48 CEST |
+| Snapshot tag | step/P2.7 |
+| Step in progress | none |
+| Next step | P2.8 — `digit-5` (Dart) |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
 
@@ -61,7 +61,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.4 | `digit-1` (C++) | DONE | 2026-10-18 | step/P2.4 | [log](progress/steps/P2.4.md) |
 | P2.5 | `digit-2` (Fortran; HTTP wrapper allowed, ADR) | DONE | 2026-10-18 | step/P2.5 | [log](progress/steps/P2.5.md) |
 | P2.6 | `digit-3` (Free Pascal) | DONE | 2026-10-18 | step/P2.6 | [log](progress/steps/P2.6.md) |
-| P2.7 | `digit-4` (Lua) | IN_PROGRESS | | | |
+| P2.7 | `digit-4` (Lua) | DONE | 2026-10-18 | step/P2.7 | [log](progress/steps/P2.7.md) |
 | P2.8 | `digit-5` (Dart) | TODO | | | |
 | P2.9 | `digit-6` (Swift) | TODO | | | |
 | P2.10 | `digit-7` (Gleam) | TODO | | | |
