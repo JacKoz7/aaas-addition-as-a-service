@@ -1,0 +1,14 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-3
+# Module:          pasfmt.toml
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Formatting rules of the Pascal sources (pasfmt 0.7.0),
+#                  checked by the lint stage and applied by `make fmt`.
+# Related Docs:    services/digit-3/Dockerfile, ADR-0025
+wrap_column = 120
+tab_width = 2
+use_tabs = false
+line_ending = "lf"
