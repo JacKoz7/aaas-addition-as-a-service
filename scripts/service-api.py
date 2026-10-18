@@ -36,10 +36,17 @@ Description:
     the component name with ``-`` replaced by ``_`` (ADR-0020), with the
     leading comments of the proto file as descriptions.
 
+    In every API.md that contains ``<!-- BEGIN GENERATED: http -->`` and
+    ``<!-- END GENERATED: http -->``, the text between them is replaced by
+    the operations of the component's OpenAPI document: ``contracts/http/
+    digit.yaml`` for ``digit-0`` … ``digit-9`` (one shared contract,
+    ADR-0021), ``contracts/http/<component>.yaml`` otherwise.
+
     The component name is the directory name. Without ``--check`` the files
     are rewritten; with ``--check`` nothing is written and the exit code is 1
-    when a section differs from what would be generated. The HTTP section
-    stays hand-maintained until its contracts exist (OpenAPI P2.2).
+    when a section differs from what would be generated. HTTP sections
+    without markers (services whose OpenAPI document does not exist yet)
+    stay hand-maintained.
 
 Business Justification:
     A service's published contract must match the registry that creates the
@@ -48,7 +55,8 @@ Business Justification:
 
 Owner: Platform Enablement Guild (PEG)
 Since: service-api 0.1.0
-Versions: 0.1.0 (P1.4) events section; 0.2.0 (P2.1) gRPC section.
+Versions: 0.1.0 (P1.4) events section; 0.2.0 (P2.1) gRPC section;
+    0.3.0 (P2.2) HTTP section.
 See Also: scripts/validate-events.py, scripts/docs-portal.py, ADR-0013.
 """
 
@@ -61,11 +69,22 @@ from collections.abc import Callable
 from pathlib import Path
 from typing import Any
 
+import yaml
+
 #: Marker opening the generated events section.
 BEGIN = "<!-- BEGIN GENERATED: events (scripts/service-api.py, do not edit) -->"
 
 #: Marker closing the generated events section.
 END = "<!-- END GENERATED: events -->"
+
+#: Marker opening the generated HTTP section.
+HTTP_BEGIN = "<!-- BEGIN GENERATED: http (scripts/service-api.py, do not edit) -->"
+
+#: Marker closing the generated HTTP section.
+HTTP_END = "<!-- END GENERATED: http -->"
+
+#: HTTP methods of an OpenAPI path item, in the order they are listed.
+HTTP_METHODS = ("get", "put", "post", "delete", "patch", "head", "options")
 
 #: Marker opening the generated gRPC section.
 GRPC_BEGIN = "<!-- BEGIN GENERATED: grpc (scripts/service-api.py, do not edit) -->"
@@ -328,6 +347,169 @@ def render_section(root: Path, component: str) -> str:
     return text
 
 
+def openapi_document(root: Path, component: str) -> Path:
+    """Locate the OpenAPI document of a component.
+
+    Summary:
+        ``contracts/http/digit.yaml`` for a digit service, else
+        ``contracts/http/<component>.yaml``.
+
+    Description:
+        The ten digit services share one contract (``CLAUDE.md`` 4.4); every
+        other component has at most one document named after it. The path
+        is returned whether or not the file exists.
+
+    Business Justification:
+        One mapping used by the generator and its tests.
+
+    Parameters:
+        root (Path): repository root.
+        component (str): component name.
+
+    Returns:
+        Path: location of the document.
+
+    Errors:
+        None.
+
+    Side Effects:
+        None.
+
+    Complexity: O(1).
+    Thread Safety: safe (no shared state).
+    Owner: Platform Enablement Guild (PEG)
+    Since: service-api 0.3.0
+
+    Example:
+        >>> openapi_document(Path("/r"), "digit-7").as_posix()
+        '/r/contracts/http/digit.yaml'
+        >>> openapi_document(Path("/r"), "ledger").name
+        'ledger.yaml'
+
+    See Also: render_http.
+    """
+    name = "digit" if re.fullmatch(r"digit-[0-9]", component) else component
+    return root / "contracts" / "http" / f"{name}.yaml"
+
+
+def response_summary(status: str, response: dict[str, Any], components: dict[str, Any]) -> str:
+    """Summarise one OpenAPI response for a table cell.
+
+    Summary:
+        ``<status>`` followed by the schema or media type of the body.
+
+    Description:
+        A ``$ref`` to ``#/components/responses/<Name>`` is resolved first.
+        The body is named by its component schema when the schema is a
+        ``$ref``, otherwise by its media type; a response without content
+        is the status alone.
+
+    Business Justification:
+        The reference shows at a glance what each status carries.
+
+    Parameters:
+        status (str): status code as written in the document.
+        response (dict[str, Any]): the response object (or a ``$ref``).
+        components (dict[str, Any]): ``components`` of the document.
+
+    Returns:
+        str: for example ``200 `DigitNext```.
+
+    Errors:
+        KeyError: a ``$ref`` points to a missing component.
+
+    Side Effects:
+        None.
+
+    Complexity: O(m) in the number of media types.
+    Thread Safety: safe (no shared state).
+    Owner: Platform Enablement Guild (PEG)
+    Since: service-api 0.3.0
+
+    Example:
+        >>> body = {"application/json": {"schema": {"$ref": "#/components/schemas/X"}}}
+        >>> response_summary("200", {"content": body}, {})
+        '`200` `X`'
+        >>> response_summary("204", {}, {})
+        '`204`'
+
+    See Also: render_http.
+    """
+    if "$ref" in response:
+        response = components["responses"][response["$ref"].rsplit("/", 1)[-1]]
+    parts = []
+    for media_type, media in response.get("content", {}).items():
+        ref = media.get("schema", {}).get("$ref", "")
+        parts.append(f"`{ref.rsplit('/', 1)[-1]}`" if ref else f"`{media_type}`")
+    return " ".join([f"`{status}`", *parts])
+
+
+def render_http(root: Path, component: str) -> str:
+    """Render the generated HTTP section of a component.
+
+    Summary:
+        Operations of the component's OpenAPI document.
+
+    Description:
+        One table row per operation: method, path, summary and the
+        responses (status and body). Without a document the section says
+        so. The prose of the document (description, conventions) is linked,
+        not copied.
+
+    Business Justification:
+        API.md must be generated from the contract (``CLAUDE.md`` 6.5.5).
+
+    Parameters:
+        root (Path): repository root.
+        component (str): component name (directory name).
+
+    Returns:
+        str: Markdown text starting and ending with a blank line.
+
+    Errors:
+        OSError: the document cannot be read.
+        yaml.YAMLError: the document is not valid YAML.
+
+    Side Effects:
+        Reads one file.
+
+    Complexity: O(size of the document).
+    Thread Safety: safe (no shared state).
+    Owner: Platform Enablement Guild (PEG)
+    Since: service-api 0.3.0
+
+    Example:
+        >>> root = Path(__file__).resolve().parent.parent
+        >>> "| `GET` | `/next` |" in render_http(root, "digit-7")
+        True
+        >>> "has no OpenAPI document" in render_http(root, "gateway")
+        True
+
+    See Also: openapi_document, response_summary.
+    """
+    path = openapi_document(root, component)
+    if not path.is_file():
+        return f"\n`{component}` has no OpenAPI document in `contracts/http` yet.\n\n"
+    document = yaml.safe_load(path.read_text(encoding="utf-8"))
+    components = document.get("components", {})
+    info = document["info"]
+    rel = path.relative_to(root).as_posix()
+    version = f"{info['title']} {info['version']} (OpenAPI {document['openapi']})"
+    text = f"\n- Contract: [`{path.name}`](../../../{rel}), {version}.\n\n"
+    text += "| Method | Path | Summary | Responses |\n| --- | --- | --- | --- |\n"
+    for route, item in document.get("paths", {}).items():
+        for method in HTTP_METHODS:
+            if method not in item:
+                continue
+            operation = item[method]
+            responses = "; ".join(
+                response_summary(str(status), response, components)
+                for status, response in operation.get("responses", {}).items()
+            )
+            text += f"| `{method.upper()}` | `{route}` | {escape(operation.get('summary', ''))} | {responses} |\n"
+    return text + "\n"
+
+
 def parse_proto(text: str) -> dict[str, Any]:
     """Extract the package, services and messages of a proto file.
 
@@ -524,8 +706,8 @@ def update(root: Path, check: bool) -> list[str]:
     """Regenerate (or check) the generated sections of every component API.md.
 
     Summary:
-        Applies render_section (events) and render_grpc (gRPC) to every
-        API.md with the corresponding markers.
+        Applies render_section (events), render_http (HTTP) and render_grpc
+        (gRPC) to every API.md with the corresponding markers.
 
     Description:
         A section whose two markers are not both present is skipped. In
@@ -561,6 +743,7 @@ def update(root: Path, check: bool) -> list[str]:
     """
     sections: list[tuple[str, str, Callable[[Path, str], str]]] = [
         (BEGIN, END, render_section),
+        (HTTP_BEGIN, HTTP_END, render_http),
         (GRPC_BEGIN, GRPC_END, render_grpc),
     ]
     changed = []
@@ -624,7 +807,7 @@ def main(argv: list[str]) -> int:
         print("usage: service-api.py [--check]", file=sys.stderr)
         return 2
     check = argv == ["--check"]
-    print("==> generated events and gRPC sections of API.md" + (" (check)" if check else ""))
+    print("==> generated events, HTTP and gRPC sections of API.md" + (" (check)" if check else ""))
     changed = update(Path(__file__).resolve().parent.parent, check)
     for path in changed:
         print(f"    {'stale' if check else 'updated'}: {path}", file=sys.stderr if check else sys.stdout)
