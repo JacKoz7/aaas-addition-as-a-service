@@ -12,11 +12,11 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Field | Value |
 | --- | --- |
 | Current phase | Phase 2 — Digits, carries, parsing (M2) |
-| Last completed step | P2.2 — Digit contract `contracts/http/digit.yaml` + shared contract test for all digits (`tests/contract/digit.sh`) |
-| Last completed at | 2026-10-18 11:32 CEST |
-| Snapshot tag | step/P2.2 |
-| Step in progress | P2.3 — digit-0 (C, SQLite) reference implementation (started 2026-10-18) |
-| Next step | P2.3 — `digit-0` (C, SQLite) as the reference implementation |
+| Last completed step | P2.3 — `digit-0` (C, SQLite) as the reference implementation |
+| Last completed at | 2026-10-18 11:50 CEST |
+| Snapshot tag | step/P2.3 |
+| Step in progress | none |
+| Next step | P2.4 — `digit-1` (C++) |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
 
@@ -57,7 +57,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | --- | --- | --- | --- | --- | --- |
 | P2.1 | `contracts/proto/` + `buf.yaml`, `buf.gen.yaml`, code generation for Go, Rust, Haskell, OCaml, Elixir, C#, Crystal, Zig, Python; CI `buf lint` and `buf breaking` | DONE | 2026-10-18 | step/P2.1 | [log](progress/steps/P2.1.md) |
 | P2.2 | Digit contract `contracts/http/digit.yaml` + shared contract test for all digits (`tests/contract/digit.sh`) | DONE | 2026-10-18 | step/P2.2 | [log](progress/steps/P2.2.md) |
-| P2.3 | `digit-0` (C, SQLite) as the reference implementation | IN_PROGRESS | | | [log](progress/steps/P2.3.md) |
+| P2.3 | `digit-0` (C, SQLite) as the reference implementation | DONE | 2026-10-18 | step/P2.3 | [log](progress/steps/P2.3.md) |
 | P2.4 | `digit-1` (C++) | TODO | | | |
 | P2.5 | `digit-2` (Fortran; HTTP wrapper allowed, ADR) | TODO | | | |
 | P2.6 | `digit-3` (Free Pascal) | TODO | | | |
