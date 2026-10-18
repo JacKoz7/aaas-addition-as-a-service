@@ -45,3 +45,9 @@ fortran|^[mp][or][a-z]*[[:space:]]+[a-z_]|^!>||
 # every declaration of the interface sections and an awk check the constants
 # and variables of the implementation sections (ADR-0025).
 pascal|^[up][nr][io][tg][a-z]*[[:space:]]+[A-Za-z]|[}][[:space:]]*$||
+# lua: a top-level named function, local or not (an optional `local `
+# prefix), preceded by a comment; LDoc doc comments start with `---`.
+# tools/doc-coverage.lua of each Lua service checks every function at any
+# depth, constant, table and module field, and requires the `---` form
+# (ADR-0026).
+lua|^(local[[:space:]]+)?function[[:space:]]+[A-Za-z_]|^[[:space:]]*--||

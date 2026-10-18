@@ -28,7 +28,7 @@ c|.c,.h|/*| * | */|80|
 cpp|.cpp,.cc,.cxx,.hpp,.hh||// ||80|
 fortran|.f90,.f95,.f03,.f08||! ||80|
 pascal|.pas,.pp,.lpr||// ||80|
-lua|.lua||-- ||80|
+lua|.lua,.busted,.luacheckrc,config.ld||-- ||80|
 dart|.dart||// ||80|
 swift|.swift||// ||80|
 gleam|.gleam||// ||80|
