@@ -5,7 +5,7 @@
 | Document | Glossary of Terms |
 | Owning Team | Platform Enablement Guild (PEG) |
 | Classification | INTERNAL |
-| Last Reviewed | 2026-10-17 |
+| Last Reviewed | 2026-10-18 |
 
 Extension of `CLAUDE.md` section 11. Terms are in alphabetical order.
 
@@ -17,6 +17,7 @@ Extension of `CLAUDE.md` section 11. Terms are in alphabetical order.
 | AST | Abstract syntax tree of the expression, built by `parser`: the addition of two numerals (ADR-0015); cached per expression text in the parser's `ast_cache`. |
 | Bootstrap mode | `AAAS_BOOTSTRAP=env` (configuration from environment variables) or `platform` (config-server, OpenBao, Consul, schema-registry). |
 | Browser event bus | `window` `CustomEvent`s with the `aaas:` prefix (`aaas:key-pressed`, `aaas:task-started`, `aaas:task-finished`, `aaas:clear`), the only channel between microfrontends (`CLAUDE.md` 2); used by the temporary page of P1.8 already (ADR-0018). |
+| buf | Protocol Buffers toolchain used for the gRPC contracts: `buf lint`, `buf format`, `buf breaking` (compatibility against an earlier revision) and `buf generate` (code generation with local protoc plugins in the image `aaas/buf:dev`); see ADR-0020. |
 | C4 model | Notation for architecture diagrams at four levels (system context, containers, components, code); AaaS draws them in Mermaid in `docs/architecture/c4/` (ADR-0010). |
 | Carry | Transfer of one unit to the next higher digit position when a digit wraps from 9 to 0; performed by the `carry` service. |
 | CDC | Change Data Capture: reading database changes from the transaction log; Debezium uses it to publish the outbox. |
@@ -36,6 +37,7 @@ Extension of `CLAUDE.md` section 11. Terms are in alphabetical order.
 | Event envelope | Common JSON wrapper of every event: `eventId`, `type`, `version`, `occurredAt`, `producer`, `taskId`, `traceparent`, `payload`; schema `contracts/events/envelope.v1.schema.json` (ADR-0013). |
 | Floci | Local emulator of AWS services, the default target of the infrastructure code. |
 | forwardAuth | Traefik middleware that asks an external service (`rate-limiter`) whether to let a request through. |
+| Generated code | Code written by `make proto` from `contracts/proto` into `contracts/gen/<language>/`; committed, never edited by hand, and checked by `make proto-check` (ADR-0020). |
 | git-cliff | Changelog generator that renders Conventional Commits through a template (`cliff.toml`); used by `make changelog-<component>` (ADR-0010). |
 | Hash chain | Each ledger entry stores `sha256` of `prevHash`, `taskId`, `a`, `b`, `result` and `recordedAt` joined by a vertical bar (ADR-0013); the first entry has 64 zeros as `prevHash`; any modification breaks every later hash. |
 | Idempotency key | Header `Idempotency-Key` of the `=` request; the same key always maps to the same task. |

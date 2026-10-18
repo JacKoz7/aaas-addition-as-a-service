@@ -254,6 +254,8 @@ Pliki `.proto` w `contracts/proto/aaas/<serwis>/v1/`. Generowanie przez `buf gen
 | `carry` | `Propagate({digits, position}) → {digits}` |
 | `consensus` | `Vote({taskId, a, b, candidate}) → {accepted, result, votes}` |
 
+Pakiet każdego serwisu to `aaas.<serwis>.v1`; nazwa pakietu protobuf nie może zawierać myślnika, więc `operator-registry` ma pakiet i katalog `aaas/operator_registry/v1/` (ADR-0020). Wygenerowany kod (9 języków) jest commitowany w `contracts/gen/<język>/` przez `make proto`; `make proto-check` pilnuje, że jest aktualny, a `make proto-lint` (część `make lint`) robi `buf format`, `buf lint` i `buf breaking` (ADR-0020).
+
 ### 4.4 Kontrakt serwisu cyfry (HTTP/JSON)
 
 Serwisy cyfr używają **HTTP/JSON zamiast gRPC**, bo Fortran, Free Pascal, Racket i Lua nie mają dojrzałych bibliotek gRPC. Kontrakt (OpenAPI w `contracts/http/digit.yaml`):
@@ -283,7 +285,8 @@ Wartość i następnik **muszą być odczytywane z własnej bazy SQLite** (seed 
 ├── .env.example
 ├── contracts/
 │   ├── events/                     # JSON Schema zdarzeń
-│   ├── proto/aaas/<serwis>/v1/     # gRPC
+│   ├── proto/aaas/<serwis>/v1/     # gRPC (buf.yaml, buf.gen.yaml)
+│   ├── gen/<język>/                # kod wygenerowany z proto (make proto, ADR-0020)
 │   └── http/                       # OpenAPI (cyfry, publiczne API)
 ├── services/
 │   └── <serwis>/

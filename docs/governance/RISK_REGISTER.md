@@ -5,7 +5,7 @@
 | Document | Enterprise Risk Register |
 | Owning Team | Platform Enablement Guild (PEG) |
 | Classification | INTERNAL |
-| Last Reviewed | 2026-10-17 |
+| Last Reviewed | 2026-10-18 |
 | Review Cadence | At the end of every phase, and whenever an incident or RFC adds a risk |
 
 ## Scales
@@ -40,6 +40,7 @@
 | R-014 | The successor writes one CouchDB document (about 3.2 KB on disk before compaction) and one event per step of every addition: 99 999 + 99 999 alone adds about 320 MB to the call log and 99 999 messages to `aaas.successor.called.v1`; without a retention job the host disk fills | 2 | 2 | 4 Low | AEC | Topic retention of Redpanda (ADR-0011) bounds the events; the call log is visible in `docker system df -v` and erased by `make clean`; per-user addition limits from P6.2; a compaction or retention job is to be decided before public access (Phase 12) | Open |
 | R-015 | immudb never deletes data: every ledger entry, consumed event and task is kept, and every checkpoint adds a version of its task row (one per 1 000 successor calls); the `ledger-data` volume grows for the lifetime of the system | 2 | 1 | 2 Low | TIO | Growth is small by design: 972 KB for the `ledger` database after 15 additions, at most 100 checkpoint versions per addition (services/ledger/docs/CAPACITY.md); the ledger is the record of results and is not pruned on purpose; visible in `docker system df -v`, erased by `make clean` | Open |
 | R-016 | immudb 1.11.2 is under the Business Source License 1.1, not an OSI licence: production use is granted free of charge only outside a competing paid offering, and the terms could change for later releases | 1 | 2 | 2 Low | TIO | AaaS uses immudb free of charge and offers nothing commercial, which `CLAUDE.md` 1, rule 3 allows (ADR-0017); each release becomes Apache-2.0 four years after publication; the last Apache-2.0 image (1.9DOM.1) lacks linux/arm64; the version is pinned and reviewed before any upgrade | Open |
+| R-017 | Crystal (`operator-registry`) and Zig (`commutator`) have no maintained gRPC server library: protobuf.cr and zig-protobuf generate messages only, so the two services may be unable to serve their `contracts/proto` contracts natively | 4 | 2 | 8 Medium | AEC | Contracts and message code exist (P2.1, ADR-0020); steps P2.15 and P2.16 decide between a minimal gRPC-over-HTTP/2 server in the service's language and a sidecar, and record it in an ADR (`CLAUDE.md` 8.6: the language is never changed) | Open |
 
 ## Closed Risks
 
