@@ -262,7 +262,10 @@ Serwisy cyfr używają **HTTP/JSON zamiast gRPC**, bo Fortran, Free Pascal, Rack
 
 - `GET /value` → `{ "digit": 7, "value": 7 }`
 - `GET /next` → `{ "digit": 7, "next": 8, "carry": false }` (dla `digit-9`: `{ "next": 0, "carry": true }`)
-- `GET /health`, `GET /metrics`
+- `GET /health`, `GET /metrics` (licznik `digit_requests_total{digit, endpoint, outcome}` wspólny dla 10 serwisów)
+- błędy jako `application/problem+json`: 404 nieznana ścieżka, 405 z `Allow: GET`, 503 gdy baza niedostępna
+
+Każdy serwis cyfry musi przejść wspólny test kontraktowy `make contract-digit-<d>` (`tests/contract/digit.sh`, ADR-0021); kontrakt lintuje `make openapi-lint`.
 
 Wartość i następnik **muszą być odczytywane z własnej bazy SQLite** (seed w migracji), nie zahardkodowane w kodzie. Jeśli język nie ma sensownego serwera HTTP, dopuszczalny jest cienki wrapper (CGI przez lighttpd albo `socat`), ale **logika cyfry i dostęp do bazy muszą być w docelowym języku**. Każde takie obejście opisz w ADR. To samo dotyczy repliki COBOL.
 

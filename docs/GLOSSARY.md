@@ -28,9 +28,9 @@ Extension of `CLAUDE.md` section 11. Terms are in alphabetical order.
 | Consensus | Three replicas (Python, Rust, COBOL) compute `a + b` natively and Raft commits the majority result, which must equal the Peano result. |
 | Continue-as-new | Temporal mechanism restarting a workflow with a fresh history; the addition workflow uses it every 1000 iterations. |
 | Contract | Machine-readable interface: JSON Schema of an event, `.proto` of a gRPC service, OpenAPI of an HTTP API, in `contracts/`. |
-| Contract test | Check that a contract and its examples agree: for events, `make contracts-check` passes every valid example and fails every invalid one at its `errorAt` location (ADR-0013). |
+| Contract test | Check that a contract and its examples or implementations agree: for events, `make contracts-check` passes every valid example and fails every invalid one at its `errorAt` location (ADR-0013); for digit services, `tests/contract/digit.sh` checks a running service against `contracts/http/digit.yaml` (ADR-0021). |
 | Definition of Done | Checklist every step must satisfy before it is closed (`CLAUDE.md` 9.1). |
-| Digit service | One of `digit-0` to `digit-9`: returns its value and its successor digit from its own SQLite database. |
+| Digit service | One of `digit-0` to `digit-9`: returns its value and its successor digit from its own SQLite database, through the shared contract `contracts/http/digit.yaml`. |
 | DLQ | Dead Letter Queue: topic `aaas.dlq.v1` for events that failed after local retries; handled by `dead-letter`. |
 | Documentation portal | MkDocs Material site assembled from every document of the repository plus generated catalogs; `make docs` builds it into `docs/site/`, `make docs-serve` serves it (ADR-0010). |
 | DPIA | Data Protection Impact Assessment under GDPR, in `docs/governance/DPIA.md`. |
