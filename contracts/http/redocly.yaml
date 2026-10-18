@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       contracts
+# Module:          contracts/http/redocly.yaml
+# Owning Team:     Platform Enablement Guild (PEG)
+# Classification:  INTERNAL
+# Purpose:         Lint configuration of the OpenAPI contracts in
+#                  contracts/http/ (Redocly CLI, run by `make openapi-lint`).
+# Related Docs:    ADR-0021, contracts/http/README.md, Makefile
+
+# recommended-strict: the recommended rules, with every warning raised to an
+# error, so that a contract either passes cleanly or fails.
+extends:
+  - recommended-strict

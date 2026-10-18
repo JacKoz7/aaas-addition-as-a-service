@@ -1,0 +1,283 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       contracts
+# Module:          contracts/http/digit.yaml
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         OpenAPI 3.1 contract shared by the ten digit services
+#                  digit-0 … digit-9: the value of the digit, its successor
+#                  with the carry flag, health and metrics.
+# Related Docs:    CLAUDE.md (sections 4.4, 6.1), ADR-0021,
+#                  contracts/http/README.md, tests/contract/digit.sh
+
+openapi: 3.1.0
+
+info:
+  title: AaaS digit service
+  version: 1.0.0
+  summary: One decimal digit as a service.
+  description: |
+    Every digit service `digit-<d>` (d = 0 … 9) implements this contract on
+    container port 8080. The service knows exactly one digit: it answers
+    the digit's value and its successor in base 10, with a carry flag that
+    is true only for digit 9. Both answers are read from the service's own
+    SQLite database (seeded by a migration), never hard-coded in the code
+    (`CLAUDE.md` 4.4).
+
+    The successor service and the carry service call `GET /next` once per
+    visited digit; the saga calls `GET /value` to confirm the value of
+    every digit of the operands (`resolveDigits`).
+
+    Conventions shared by every operation:
+
+    - A `traceparent` header (W3C Trace Context) is accepted and continued
+      in the service's logs and spans; it is optional.
+    - Errors are `application/problem+json` (RFC 9457). Unknown paths
+      answer 404, other methods on a known path 405 with an `Allow`
+      header.
+    - Responses are identical for every call while the database is
+      healthy: the operations are safe and idempotent, so callers may retry
+      them freely.
+  license:
+    name: MIT
+    identifier: MIT
+
+servers:
+  - url: http://digit-{digit}:8080
+    description: A digit service on the Compose network `aaas-services`.
+    variables:
+      digit:
+        description: The digit the service represents.
+        default: "0"
+        enum: ["0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]
+
+# Digit services are reachable only on the internal network aaas-services
+# and are not routed by the gateway; callers are other services, so the
+# contract requires no authentication (ADR-0021).
+security: []
+
+tags:
+  - name: digit
+    description: Arithmetic operations of the digit.
+  - name: operations
+    description: Health and metrics, as every AaaS service (`CLAUDE.md` 6.1).
+
+paths:
+  /value:
+    get:
+      operationId: getValue
+      tags: [digit]
+      summary: Value of the digit.
+      description: |
+        Returns the digit the service represents and its numeric value
+        (always equal to the digit), as stored in the service's database.
+      parameters:
+        - $ref: "#/components/parameters/Traceparent"
+      responses:
+        "200":
+          description: The value of the digit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigitValue"
+              examples:
+                seven:
+                  summary: digit-7
+                  value: {digit: 7, value: 7}
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+
+  /next:
+    get:
+      operationId: getNext
+      tags: [digit]
+      summary: Successor of the digit in base 10.
+      description: |
+        Returns the next digit and whether the step carries one to the next
+        higher position: for d = 0 … 8, `next` is d + 1 and `carry` is
+        false; for d = 9, `next` is 0 and `carry` is true.
+      parameters:
+        - $ref: "#/components/parameters/Traceparent"
+      responses:
+        "200":
+          description: The successor of the digit.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DigitNext"
+              examples:
+                seven:
+                  summary: digit-7
+                  value: {digit: 7, next: 8, carry: false}
+                nine:
+                  summary: digit-9
+                  value: {digit: 9, next: 0, carry: true}
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "503":
+          $ref: "#/components/responses/Unavailable"
+
+  /health:
+    get:
+      operationId: getHealth
+      tags: [operations]
+      summary: Liveness and readiness.
+      description: |
+        Healthy when the service can read its digit from the database. Used
+        by the Compose healthcheck and, from P5.1, by Consul.
+      responses:
+        "200":
+          description: The service is healthy.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+              examples:
+                ok:
+                  value: {status: ok, checks: {database: ok}}
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+        "503":
+          description: A check failed; the body names it.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+              examples:
+                database:
+                  value: {status: error, checks: {database: error}}
+
+  /metrics:
+    get:
+      operationId: getMetrics
+      tags: [operations]
+      summary: Prometheus metrics.
+      description: |
+        Prometheus text exposition format. Every digit service exposes at
+        least the counter `digit_requests_total` with the labels `digit`
+        (0 … 9), `endpoint` (`value` or `next`) and `outcome` (`ok` or
+        `error`), so that one dashboard covers all ten services (P7.3).
+      responses:
+        "200":
+          description: The metrics.
+          content:
+            text/plain:
+              schema:
+                type: string
+              examples:
+                counter:
+                  value: |
+                    # HELP digit_requests_total Requests answered by the digit service.
+                    # TYPE digit_requests_total counter
+                    digit_requests_total{digit="7",endpoint="next",outcome="ok"} 42
+        "405":
+          $ref: "#/components/responses/MethodNotAllowed"
+
+components:
+  parameters:
+    Traceparent:
+      name: traceparent
+      in: header
+      required: false
+      description: W3C Trace Context of the caller (`CLAUDE.md` 6.1).
+      schema:
+        type: string
+        pattern: "^[0-9a-f]{2}-[0-9a-f]{32}-[0-9a-f]{16}-[0-9a-f]{2}$"
+
+  schemas:
+    Digit:
+      description: A decimal digit.
+      type: integer
+      minimum: 0
+      maximum: 9
+
+    DigitValue:
+      description: The digit a service represents and its value.
+      type: object
+      additionalProperties: false
+      required: [digit, value]
+      properties:
+        digit:
+          $ref: "#/components/schemas/Digit"
+        value:
+          description: Numeric value of the digit; always equal to `digit`.
+          $ref: "#/components/schemas/Digit"
+
+    DigitNext:
+      description: The successor of a digit in base 10.
+      type: object
+      additionalProperties: false
+      required: [digit, next, carry]
+      properties:
+        digit:
+          $ref: "#/components/schemas/Digit"
+        next:
+          description: (digit + 1) mod 10.
+          $ref: "#/components/schemas/Digit"
+        carry:
+          description: True only for digit 9, whose successor wraps to 0.
+          type: boolean
+
+    Health:
+      description: Result of the health checks (`CLAUDE.md` 6.1).
+      type: object
+      required: [status, checks]
+      properties:
+        status:
+          description: "`ok` when every check passed, `error` otherwise."
+          type: string
+          enum: [ok, error]
+        checks:
+          description: One entry per dependency; digit services check only their database.
+          type: object
+          required: [database]
+          additionalProperties:
+            type: string
+            enum: [ok, error]
+          properties:
+            database:
+              description: Whether the digit could be read from SQLite.
+              type: string
+              enum: [ok, error]
+
+    Problem:
+      description: Problem details (RFC 9457).
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          description: URI reference identifying the problem type; `about:blank` when none.
+          type: string
+        title:
+          description: Short, human-readable summary of the problem type.
+          type: string
+        status:
+          description: HTTP status code of this occurrence.
+          type: integer
+          minimum: 400
+          maximum: 599
+        detail:
+          description: Human-readable explanation of this occurrence.
+          type: string
+
+  responses:
+    MethodNotAllowed:
+      description: The path exists but not for this method; `Allow` lists the methods.
+      headers:
+        Allow:
+          description: Methods allowed on the path (`GET`).
+          schema:
+            type: string
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
+    Unavailable:
+      description: The digit could not be read from the database; retry the call.
+      content:
+        application/problem+json:
+          schema:
+            $ref: "#/components/schemas/Problem"
