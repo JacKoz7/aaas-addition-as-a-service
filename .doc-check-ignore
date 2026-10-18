@@ -29,3 +29,7 @@ templates/headers/header.txt
 # Placeholder files of empty scaffold directories; they hold a scaffold
 # marker and are deleted when the directory gets real content.
 *.gitkeep
+
+# Code generated from contracts/proto by `make proto`; its documentation is
+# the comments of the .proto files, which the generators copy (ADR-0020).
+contracts/gen/*
