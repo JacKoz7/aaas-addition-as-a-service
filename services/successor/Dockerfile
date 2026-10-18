@@ -28,7 +28,7 @@
 #               `make api-docs` and published in the portal (ADR-0010).
 #   build     — the release executable in /out.
 #   runtime   — Debian bookworm slim with librdkafka, non-root user, port
-#               8080 (HTTP; gRPC arrives with P2.1).
+#               8080 (HTTP; gRPC arrives with P2.13).
 
 FROM haskell:9.10.3-slim-bookworm AS toolchain
 # Pipes in RUN instructions fail on any failing command (hadolint DL4006);

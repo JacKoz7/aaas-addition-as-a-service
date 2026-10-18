@@ -21,7 +21,7 @@
 | Dependant | Kind | Contract | Effect of Our Failure |
 | --- | --- | --- | --- |
 | `ledger` (P1.7, until P3.3) | Caller of `POST /v1/next` | API.md | Additions stop counting; they continue when the service is back |
-| `saga-orchestrator` (from P3.3) | Caller of `Next` (gRPC from P2.1) | API.md, `contracts/proto/aaas/successor/v1/` (P2.1) | Activity retries; the workflow waits |
+| `saga-orchestrator` (from P3.3) | Caller of `Next` (gRPC, served from P2.13) | API.md, `contracts/proto/aaas/successor/v1/` (P2.1) | Activity retries; the workflow waits |
 | Audit (no consumer yet) | `aaas.successor.called.v1` | [schema](../../../contracts/events/aaas.successor.called.v1.schema.json) | None |
 | Compose healthcheck | `GET /health` | API.md | The container is reported unhealthy |
 

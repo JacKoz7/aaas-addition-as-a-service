@@ -50,7 +50,7 @@ organisation is not prepared to make.
 
 ### In Scope
 
-- Serve `POST /v1/next` (`Next` of `CLAUDE.md` 4.3; gRPC from P2.1) for
+- Serve `POST /v1/next` (`Next` of `CLAUDE.md` 4.3; gRPC from P2.13) for
   arguments `0..199997`.
 - Log every call once in CouchDB, keyed by `<taskId>:<n>`.
 - Publish `aaas.successor.called.v1` once per call, keyed by `taskId`, with

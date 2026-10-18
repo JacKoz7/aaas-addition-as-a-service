@@ -7,7 +7,7 @@
 | Database | CouchDB 3.5.1 (`successor-db`, volume `successor-data`) |
 | Compose profile | `services` |
 | Networks | `services`, `data` |
-| Ports (container) | 8080 HTTP (gRPC 9090 from P2.1) |
+| Ports (container) | 8080 HTTP (gRPC 9090 from P2.13) |
 | Version | 0.1.0 |
 
 ## Role
@@ -19,8 +19,10 @@ successor calls, made by the ledger until P3.3 and by the saga afterwards.
 Every call is logged in CouchDB and announced as
 `aaas.successor.called.v1`. Until P2.13 the successor is computed natively
 (`TEMPORARY(P2.13)`); P2.13 replaces that with the digit services and
-`carry`. Until P2.1 the method `Next` of `CLAUDE.md` 4.3 is served over
-HTTP/JSON (`TEMPORARY(P2.1)`).
+`carry`, and adds the gRPC method `Next` of `CLAUDE.md` 4.3
+(`contracts/proto/aaas/successor/v1/`) on port 9090. The HTTP/JSON form
+`POST /v1/next` stays for the ledger until P3.3 (`TEMPORARY(P3.3)`,
+ADR-0020).
 
 If the successor is down, additions stop counting until it is back: the
 caller retries its call, and no step is lost.

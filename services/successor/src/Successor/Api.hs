@@ -15,8 +15,8 @@
 -- __Description:__
 --
 -- * @POST \/v1\/next@ with @{"n": \<integer\>, "taskId": \<uuid\>}@ answers
---   @200 {"n": n + 1}@: the @Next({n}) → {n}@ method of CLAUDE.md 4.3 over
---   HTTP/JSON until the gRPC contracts of P2.1 exist. A @traceparent@
+--   @200 {"n": n + 1}@: the @Next({n, taskId}) → {n}@ method of CLAUDE.md
+--   4.3 over HTTP/JSON for the ledger until P3.3. A @traceparent@
 --   header is continued. Problems (RFC 9457): 400 for a malformed body,
 --   422 for an argument outside @0..199997@ or a malformed @taskId@, 503
 --   when CouchDB or Kafka failed.
@@ -211,8 +211,8 @@ parseNextRequest body = case Aeson.decode body of
 application :: Env -> Application
 application env req respond = case (pathInfo req, requestMethod req) of
   (["v1", "next"], m) | m == methodPost -> do
-    -- TEMPORARY(P2.1): HTTP/JSON stands in for the gRPC method Next of
-    -- CLAUDE.md 4.3 until contracts/proto exists.
+    -- TEMPORARY(P3.3): HTTP/JSON for the ledger until the saga counts;
+    -- the gRPC method Next of CLAUDE.md 4.3 is served from P2.13.
     body <- lazyRequestBody req
     if BL.length body > 4096
       then respond (problem status413 "Content Too Large" "the body is limited to 4 KiB")
