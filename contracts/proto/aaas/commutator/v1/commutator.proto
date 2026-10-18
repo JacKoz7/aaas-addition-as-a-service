@@ -1,0 +1,46 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       contracts
+// Module:          aaas.commutator.v1
+// Owning Team:     Arithmetic Excellence Center (AEC)
+// Classification:  INTERNAL
+// Purpose:         gRPC contract of the commutator service: orders the
+//                  operands so that the second one is the smaller, which
+//                  minimises the number of successor calls (a + b takes b
+//                  calls).
+// Related Docs:    CLAUDE.md (sections 1, 3, 4.3), contracts/proto/README.md,
+//                  ADR-0020
+
+syntax = "proto3";
+
+package aaas.commutator.v1;
+
+// CommutatorService applies the commutative law of addition so that the
+// Peano loop runs min(a, b) times instead of b times. It is called by the
+// parser after the validator has accepted the operands.
+service CommutatorService {
+  // Normalize returns the operands ordered so that a >= b.
+  //
+  // When the request already satisfies a >= b (including a == b), the
+  // operands are returned unchanged and swapped is false.
+  rpc Normalize(NormalizeRequest) returns (NormalizeResponse);
+}
+
+// NormalizeRequest carries two validated operands.
+message NormalizeRequest {
+  // First operand, in 0..99 999 (already validated).
+  uint32 a = 1;
+  // Second operand, in 0..99 999 (already validated).
+  uint32 b = 2;
+}
+
+// NormalizeResponse carries the operands in the order a >= b.
+message NormalizeResponse {
+  // The larger operand (or either one when they are equal), in 0..99 999.
+  uint32 a = 1;
+  // The smaller operand, in 0..99 999; the number of successor calls.
+  uint32 b = 2;
+  // True when the operands of the request were exchanged.
+  bool swapped = 3;
+}

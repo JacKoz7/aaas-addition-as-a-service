@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       contracts
+// Module:          aaas.operator_registry.v1
+// Owning Team:     Arithmetic Excellence Center (AEC)
+// Classification:  INTERNAL
+// Purpose:         gRPC contract of the operator-registry service: maps an
+//                  operator symbol to the saga that executes it and reports
+//                  whether the operation is currently enabled.
+// Related Docs:    CLAUDE.md (sections 3, 4.3), contracts/proto/README.md,
+//                  ADR-0020
+//
+// The proto package and directory use `operator_registry` (underscore)
+// because protobuf package names cannot contain the hyphen of the service
+// name `operator-registry` (ADR-0020).
+
+syntax = "proto3";
+
+package aaas.operator_registry.v1;
+
+// OperatorRegistryService is the catalogue of arithmetic operations. AaaS
+// supports exactly one entry, `+`, executed by the saga `addition`; the
+// enabled flag reflects the feature flag `addition_enabled` (step P6.4).
+service OperatorRegistryService {
+  // Resolve looks up an operator symbol.
+  //
+  // An operator that is not in the catalogue yields the gRPC status
+  // NOT_FOUND. A known but disabled operator is a successful response with
+  // enabled set to false; the caller must not start the saga.
+  rpc Resolve(ResolveRequest) returns (ResolveResponse);
+}
+
+// ResolveRequest names the operator to look up.
+message ResolveRequest {
+  // Operator symbol exactly as it appears in the expression, for example
+  // "+". Matching is exact and case-sensitive.
+  string operator = 1;
+}
+
+// ResolveResponse describes how the operator is executed.
+message ResolveResponse {
+  // Name of the saga (Temporal workflow family) that executes the
+  // operator, for example "addition".
+  string saga = 1;
+  // True when the operation may be executed now.
+  bool enabled = 2;
+}

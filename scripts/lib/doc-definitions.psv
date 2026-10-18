@@ -30,3 +30,7 @@ sql|^DEFINE [A-Z]+ |^--||COMMENT "
 # alternation cannot be written without `|`). The comment must end on the
 # line above the definition, as an odoc `(** ... *)` comment does.
 ocaml|^[aceltmv][a-z]*[[:space:]]|[*][)][[:space:]]*$||
+# proto: a top-level `message`, `service` or `enum` with a capitalised name
+# (the second letter, e or n, rules out `syntax`). buf lint (COMMENTS rules)
+# additionally checks RPCs, fields and nested definitions (ADR-0020).
+proto|^[mse][en][a-z]*[[:space:]]+[A-Z]|^[[:space:]]*//||

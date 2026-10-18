@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       contracts
+# Module:          contracts/proto/buf.yaml
+# Owning Team:     Platform Enablement Guild (PEG)
+# Classification:  INTERNAL
+# Purpose:         buf workspace of the gRPC contracts: one module rooted
+#                  here (packages aaas.<service>.v1 in aaas/<service>/v1/),
+#                  the lint rules and the breaking-change rules.
+# Related Docs:    CLAUDE.md (section 4.3), ADR-0020,
+#                  contracts/proto/README.md, scripts/proto.sh
+
+version: v2
+
+modules:
+  - path: .
+
+lint:
+  # STANDARD: package/directory layout, naming, <Method>Request and
+  # <Method>Response messages, the Service suffix and versioned packages.
+  # COMMENTS: every service, RPC, message, field and enum carries a leading
+  # comment (the protobuf counterpart of CLAUDE.md 6.5.3).
+  use:
+    - STANDARD
+    - COMMENTS
+
+breaking:
+  # FILE: the strictest category; it also protects generated code, whose
+  # file and package layout depends on the .proto file names.
+  use:
+    - FILE

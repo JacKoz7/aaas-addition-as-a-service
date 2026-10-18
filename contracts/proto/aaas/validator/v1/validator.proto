@@ -1,0 +1,53 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       contracts
+// Module:          aaas.validator.v1
+// Owning Team:     Arithmetic Excellence Center (AEC)
+// Classification:  INTERNAL
+// Purpose:         gRPC contract of the validator service: checks that both
+//                  operands of an addition lie in the supported range
+//                  0..99 999 before any arithmetic resource is committed.
+// Related Docs:    CLAUDE.md (sections 1, 4.3), contracts/proto/README.md,
+//                  ADR-0020
+
+syntax = "proto3";
+
+package aaas.validator.v1;
+
+// ValidatorService guards the arithmetic pipeline against operands outside
+// the supported range 0..99 999 (CLAUDE.md section 1). It is called by the
+// parser after the expression has been turned into an AST and before the
+// addition is requested. The service holds no per-request state: the same
+// request always yields the same response.
+service ValidatorService {
+  // Validate checks both operands against the supported range.
+  //
+  // An out-of-range operand is a regular, successful response with ok set
+  // to false, not a gRPC error. gRPC errors are reserved for the service
+  // being unable to answer (UNAVAILABLE, DEADLINE_EXCEEDED, INTERNAL).
+  rpc Validate(ValidateRequest) returns (ValidateResponse);
+}
+
+// ValidateRequest carries the two operands exactly as the parser read them.
+//
+// The fields are 64-bit so that operands above the supported range (for
+// example 123 456) reach the validator and are rejected with a reason
+// instead of being truncated by the caller. An operand that does not even
+// fit in 64 bits is rejected by the parser itself.
+message ValidateRequest {
+  // First operand (left of `+`), any value in 0..2^64-1.
+  uint64 a = 1;
+  // Second operand (right of `+`), any value in 0..2^64-1.
+  uint64 b = 2;
+}
+
+// ValidateResponse is the verdict of the validator.
+message ValidateResponse {
+  // True when both operands lie in 0..99 999.
+  bool ok = 1;
+  // Human-readable English explanation of a rejection, naming the offending
+  // operand(s), for example "a = 123456 is outside the range 0..99999".
+  // Empty when ok is true.
+  string reason = 2;
+}

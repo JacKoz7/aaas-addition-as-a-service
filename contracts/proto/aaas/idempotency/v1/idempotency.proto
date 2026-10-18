@@ -1,0 +1,63 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       contracts
+// Module:          aaas.idempotency.v1
+// Owning Team:     Trust & Identity Board (TIB)
+// Classification:  INTERNAL
+// Purpose:         gRPC contract of the idempotency service: guarantees that
+//                  one Idempotency-Key of the `=` key maps to exactly one
+//                  addition task.
+// Related Docs:    CLAUDE.md (sections 3, 4.1, 4.3), contracts/proto/README.md,
+//                  ADR-0020
+
+syntax = "proto3";
+
+package aaas.idempotency.v1;
+
+// IdempotencyService records which task was created for an Idempotency-Key,
+// so that repeating the same `=` request returns the same task instead of
+// starting a second addition. It is called by expression-assembler.
+service IdempotencyService {
+  // Claim atomically binds a key to a task identifier.
+  //
+  // When the key is unknown (or was marked failed), it is bound to the
+  // proposed task_id and existing is false. When the key is already bound,
+  // the stored task identifier is returned with existing set to true, and
+  // the proposed task_id is discarded. An empty key or task_id yields the
+  // gRPC status INVALID_ARGUMENT.
+  rpc Claim(ClaimRequest) returns (ClaimResponse);
+  // MarkFailed releases a key whose task failed, so that the next Claim
+  // with the same key starts a new task. It is sent by the saga during
+  // compensation. Marking an unknown key is a no-op and succeeds.
+  rpc MarkFailed(MarkFailedRequest) returns (MarkFailedResponse);
+}
+
+// ClaimRequest proposes a binding of a key to a new task.
+message ClaimRequest {
+  // Value of the Idempotency-Key header of the `=` request; non-empty, at
+  // most 255 characters.
+  string key = 1;
+  // Task identifier (UUIDv7, canonical text form) that the caller will use
+  // if the key is new.
+  string task_id = 2;
+}
+
+// ClaimResponse names the task that owns the key.
+message ClaimResponse {
+  // Task identifier bound to the key: the proposed one when existing is
+  // false, the earlier one otherwise.
+  string task_id = 1;
+  // True when the key was already bound before this call.
+  bool existing = 2;
+}
+
+// MarkFailedRequest names the key to release.
+message MarkFailedRequest {
+  // Idempotency-Key of the failed task; non-empty.
+  string key = 1;
+}
+
+// MarkFailedResponse is intentionally empty: success is conveyed by the
+// gRPC status OK.
+message MarkFailedResponse {}
