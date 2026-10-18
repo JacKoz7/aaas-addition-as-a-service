@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-1
+# Module:          .clang-tidy
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Static analysis rules of the C++ sources (clang-tidy 20),
+#                  run by the lint stage; every finding is an error.
+# Related Docs:    services/digit-1/Dockerfile, ADR-0023
+#
+# Only src/ and tests/ are analysed (HeaderFilterRegex); cpp-httplib,
+# nlohmann-json and doctest are third-party system headers.
+#
+# Disabled checks and why:
+#   modernize-use-trailing-return-type: style preference, not a defect.
+#   readability-identifier-length: `ec`, `f`, `e`, `o` are idiomatic in
+#     short scopes.
+#   misc-include-cleaner: flags the umbrella headers of the libraries.
+#   cppcoreguidelines-avoid-magic-numbers, readability-magic-numbers: the
+#     contract's status codes are named constants; the remaining literals
+#     are the fixed offsets of the traceparent format and test data.
+#   bugprone-easily-swappable-parameters: (status, title, detail) and
+#     (endpoint, outcome) have distinct types or fixed meaning.
+#   cppcoreguidelines-avoid-do-while: inside the doctest macros.
+#   google-build-using-namespace: `using namespace aaas::digit` only in
+#     the anonymous namespace of main.cpp and of the tests.
+#   cert-err58-cpp: doctest registers test cases from static constructors.
+#   cppcoreguidelines-pro-bounds-pointer-arithmetic: std::from_chars takes
+#     a [first, last) pointer range.
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cert-*,
+  concurrency-*,
+  cppcoreguidelines-*,
+  misc-*,
+  modernize-*,
+  performance-*,
+  portability-*,
+  readability-*,
+  -modernize-use-trailing-return-type,
+  -readability-identifier-length,
+  -misc-include-cleaner,
+  -cppcoreguidelines-avoid-magic-numbers,
+  -readability-magic-numbers,
+  -bugprone-easily-swappable-parameters,
+  -cppcoreguidelines-avoid-do-while,
+  -google-build-using-namespace,
+  -cert-err58-cpp,
+  -cppcoreguidelines-pro-bounds-pointer-arithmetic
+HeaderFilterRegex: "/src/(src|tests)/"
+# Plain data structs (DigitRow, Reply, TraceContext) keep public members.
+CheckOptions:
+  misc-non-private-member-variables-in-classes.IgnoreClassesWithAllMemberVariablesBeingPublic: true
+WarningsAsErrors: "*"

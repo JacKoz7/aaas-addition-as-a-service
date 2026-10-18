@@ -370,6 +370,41 @@ services:
     # volume, owned by the image's non-root user (UID 10001).
     volumes:
       - digit-0-data:/data
+  # --- digit-1 (cpp, AEC) ---------------------------------
+  digit-1:
+    build:
+      # Relative to compose/, the directory of the included file.
+      context: ../services/digit-1
+      dockerfile: Dockerfile
+      target: runtime
+    image: aaas/digit-1:dev
+    profiles: [services]
+    # `services` only: the database (SQLite) is embedded in the process, so
+    # the service needs no `data` network and no password.
+    networks: [services]
+    environment:
+      AAAS_SERVICE: digit-1
+      AAAS_ENV: ${AAAS_ENV:-local}
+      AAAS_BOOTSTRAP: ${AAAS_BOOTSTRAP:-env}
+      AAAS_DIGIT: "1"
+      AAAS_DB_PATH: /data/digit-1.db
+      AAAS_LOG_LEVEL: info
+    # Compiled language (C++): default limit for compiled services
+    # (CLAUDE.md 6.2). Measured usage: services/digit-1/docs/CAPACITY.md.
+    mem_limit: 64m
+    cpus: 0.5
+    # SIGTERM stops the server and closes the database at once (src/main.cpp).
+    stop_grace_period: 10s
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    # SQLite is embedded in the service process; its file lives in this
+    # volume, owned by the image's non-root user (UID 10001).
+    volumes:
+      - digit-1-data:/data
 # AAAS:VOLUMES
 volumes:
   expression-assembler-data: {}
@@ -377,3 +412,4 @@ volumes:
   successor-data: {}
   ledger-data: {}
   digit-0-data: {}
+  digit-1-data: {}
