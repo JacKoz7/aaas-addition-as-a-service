@@ -15,7 +15,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Last completed step | P1.9 — `tests/e2e` with the `2+3=5` case, `make e2e` — **M1** |
 | Last completed at | 2026-10-17 20:25 CEST |
 | Snapshot tag | step/P1.9 (phase-1-done) |
-| Step in progress | none |
+| Step in progress | P2.1 — gRPC contracts and code generation (started 2026-10-18) |
 | Next step | P2.1 — `contracts/proto/` + `buf.yaml`, `buf.gen.yaml`, code generation for Go, Rust, Haskell, OCaml, Elixir, C#, Crystal, Zig, Python; CI `buf lint` and `buf breaking` |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
@@ -55,7 +55,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 
 | ID | Step | Status | Completed | Snapshot | Log |
 | --- | --- | --- | --- | --- | --- |
-| P2.1 | `contracts/proto/` + `buf.yaml`, `buf.gen.yaml`, code generation for Go, Rust, Haskell, OCaml, Elixir, C#, Crystal, Zig, Python; CI `buf lint` and `buf breaking` | TODO | | | |
+| P2.1 | `contracts/proto/` + `buf.yaml`, `buf.gen.yaml`, code generation for Go, Rust, Haskell, OCaml, Elixir, C#, Crystal, Zig, Python; CI `buf lint` and `buf breaking` | IN_PROGRESS | | | [log](progress/steps/P2.1.md) |
 | P2.2 | Digit contract `contracts/http/digit.yaml` + shared contract test for all digits (`tests/contract/digit.sh`) | TODO | | | |
 | P2.3 | `digit-0` (C, SQLite) as the reference implementation | TODO | | | |
 | P2.4 | `digit-1` (C++) | TODO | | | |
