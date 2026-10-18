@@ -34,3 +34,8 @@ ocaml|^[aceltmv][a-z]*[[:space:]]|[*][)][[:space:]]*$||
 # (the second letter, e or n, rules out `syntax`). buf lint (COMMENTS rules)
 # additionally checks RPCs, fields and nested definitions (ADR-0020).
 proto|^[mse][en][a-z]*[[:space:]]+[A-Z]|^[[:space:]]*//||
+# fortran: a top-level `module` or `program` (m+o or p+r as the first two
+# letters; an alternation cannot be written without `|`), preceded by a FORD
+# `!>` comment. FORD with `warn: true` checks every entity inside them in the
+# doc-coverage stage of each Fortran service (ADR-0024).
+fortran|^[mp][or][a-z]*[[:space:]]+[a-z_]|^!>||
