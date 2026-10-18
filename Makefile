@@ -9,7 +9,7 @@
 #                  inspecting the AaaS system on a developer workstation.
 # Related Docs:    CLAUDE.md (sections 4.2, 6.2, 6.4, 6.5.4, 6.5.7, 6.5.8,
 #                  6.6, 8.1, 9.3), ADR-0002, ADR-0009, ADR-0010, ADR-0011,
-#                  ADR-0013, ADR-0020, docs/PROGRESS.md
+#                  ADR-0013, ADR-0020, ADR-0021, docs/PROGRESS.md
 #
 # Conventions:
 #   - `make <verb>` acts on the whole system; `make <verb>-<name>` acts on one
@@ -69,6 +69,9 @@ DOCS_IMAGE := aaas/docs-portal:dev
 DOCS_RUN := docker run --rm --user "$$(id -u):$$(id -g)" --volume "$(CURDIR)":/docs
 API_DOCS_DIR := build/api-docs
 DOCS_PORT ?= 8000
+
+# Linter of the OpenAPI contracts in contracts/http (ADR-0021).
+REDOCLY_IMAGE := redocly/cli:2.64.1
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -197,12 +200,24 @@ e2e: ## Run end-to-end tests through the gateway
 	$(call require_file,$(E2E_SCRIPT),P1.9)
 	$(E2E_SCRIPT)
 
+.PHONY: contract-digit-%
+contract-digit-%: ## Contract test of one running digit service against contracts/http/digit.yaml (make contract-digit-7)
+	tests/contract/digit.sh $*
+
+.PHONY: contract-digits
+contract-digits: ## Contract test of every digit service that is running (services/digit-*)
+	@for dir in $(sort $(wildcard services/digit-*)); do tests/contract/digit.sh "$${dir##*-}" || exit 1; done
+
+.PHONY: contract-selftest
+contract-selftest: ## Prove that the digit contract test passes conforming doubles and fails faulty ones
+	tests/contract/selftest.sh
+
 # ---------------------------------------------------------------------------
 # Code quality
 # ---------------------------------------------------------------------------
 
 .PHONY: lint
-lint: lint-repo lint-scaffold contracts-check proto-lint ## Run every linter (repository-level, contracts and per component)
+lint: lint-repo lint-scaffold contracts-check proto-lint openapi-lint ## Run every linter (repository-level, contracts and per component)
 	@for name in $(COMPONENTS); do $(MAKE) lint-$$name; done
 	@$(MAKE) temporary
 
@@ -210,6 +225,12 @@ lint: lint-repo lint-scaffold contracts-check proto-lint ## Run every linter (re
 contracts-check: docs-image ## Validate the event schemas and examples, and that generated API.md sections are current
 	$(DOCS_RUN) --entrypoint python3 $(DOCS_IMAGE) scripts/validate-events.py
 	$(DOCS_RUN) --entrypoint python3 $(DOCS_IMAGE) scripts/service-api.py --check
+
+.PHONY: openapi-lint
+openapi-lint: ## Lint the OpenAPI contracts of contracts/http with Redocly CLI (recommended-strict)
+	@echo "==> openapi lint (contracts/http)"
+	docker run --rm --user "$$(id -u):$$(id -g)" --volume "$(CURDIR)":/spec --workdir /spec $(REDOCLY_IMAGE) \
+		lint --config contracts/http/redocly.yaml $$(ls contracts/http/*.yaml | grep -v redocly.yaml)
 
 .PHONY: proto-lint
 proto-lint: ## buf format and buf lint of contracts/proto, and buf breaking against PROTO_AGAINST (default: merge base with main)
@@ -282,11 +303,11 @@ doc-coverage: doc-check doc-coverage-repo ## doc-check, repository Python and th
 
 .PHONY: doc-coverage-repo
 doc-coverage-repo: docs-image ## interrogate (100%) and doctests of the repository Python scripts
-	@echo "==> interrogate (scripts/, infra/buf/) and doctests (scripts/*.py)"
+	@echo "==> interrogate (scripts/, infra/buf/, tests/contract/) and doctests (scripts/, tests/contract/)"
 	@# infra/buf/*.py needs grpcio-tools, so its doctests run in aaas/buf:dev
 	@# (ADR-0020), not here.
 	$(DOCS_RUN) --entrypoint sh $(DOCS_IMAGE) -c \
-		'interrogate --verbose --fail-under 100 scripts/ infra/buf/ && for f in scripts/*.py; do python3 -m doctest "$$f" || exit 1; done && echo "    doctests passed"'
+		'interrogate --verbose --fail-under 100 scripts/ infra/buf/ tests/contract/ && for f in scripts/*.py tests/contract/*.py tests/contract/stub/*.py; do python3 -m doctest "$$f" || exit 1; done && echo "    doctests passed"'
 
 .PHONY: doc-coverage-%
 doc-coverage-%: ## Native documentation coverage of one component (make doc-coverage-successor)
