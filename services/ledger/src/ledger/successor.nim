@@ -21,8 +21,8 @@
 ##
 ## TEMPORARY(P3.6): transient failures are retried until the call succeeds
 ## or the service stops; from P3.6 the attempts are bounded and the task is
-## sent to the DLQ. TEMPORARY(P2.1): HTTP/JSON until the gRPC `Next`
-## method exists.
+## sent to the DLQ. TEMPORARY(P3.3): HTTP/JSON for as long as the ledger
+## counts; the saga calls the gRPC `Next` from P3.3 (ADR-0020).
 ##
 ## **Business Justification:** The ledger counts by successor calls
 ## (`TEMPORARY(P3.3)`), up to 99 999 per addition, so the connection is

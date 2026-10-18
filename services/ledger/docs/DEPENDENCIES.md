@@ -17,7 +17,7 @@
 | `ledger-db-init` | One-shot container | `immudb/provision.sh` | The ledger does not start until it exits 0 |
 | Redpanda | Event bus | `aaas.addition.requested.v1` (in, group `ledger`), `aaas.ledger.appended.v1` (out) | `/health` `broker: failing`; no new tasks; publications retried until acknowledged (5 s message timeout per attempt) |
 | `parser` (AEC) | Producer of `aaas.addition.requested.v1` | [schema](../../../contracts/events/aaas.addition.requested.v1.schema.json) | No new additions; nothing is lost |
-| `successor` (AEC) | HTTP `POST /v1/next` (`TEMPORARY(P2.1)`: gRPC later) | services/successor/README.md | Counting pauses; each call retried (2 s deadline, backoff 100 ms doubling to 5 s, full jitter; `TEMPORARY(P3.6)`: without limit); a 4xx marks the task `FAILED` |
+| `successor` (AEC) | HTTP `POST /v1/next` (`TEMPORARY(P3.3)`: until the saga counts, ADR-0020) | services/successor/README.md | Counting pauses; each call retried (2 s deadline, backoff 100 ms doubling to 5 s, full jitter; `TEMPORARY(P3.6)`: without limit); a 4xx marks the task `FAILED` |
 | Gateway (PEG) | Route `GET /api/v1/tasks/{taskId}` (upstream `tasks`) | services/gateway/config/dynamic/routes.yml | The display cannot see the status; counting continues |
 
 ## 2. Downstream (depends on this service)
