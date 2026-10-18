@@ -68,5 +68,6 @@ make|Makefile,.mk||# ||80|
 dockerfile|Dockerfile,.dockerfile,.dockerignore||# ||80|
 yaml|.yml,.yaml||# ||80|
 toml|.toml||# ||80|
+awk|.awk||# ||80|
 ini|.ini||; ||80|
 conf|CODEOWNERS,.doc-check-ignore,.prettierignore,.conf,.cfg,.env,.example,.psv,.gitignore,.gitattributes,.editorconfig,.opam,.ocamlformat,.clang-format,.clang-tidy,Doxyfile||# ||80|

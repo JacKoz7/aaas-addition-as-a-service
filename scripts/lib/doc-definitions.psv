@@ -39,3 +39,9 @@ proto|^[mse][en][a-z]*[[:space:]]+[A-Z]|^[[:space:]]*//||
 # `!>` comment. FORD with `warn: true` checks every entity inside them in the
 # doc-coverage stage of each Fortran service (ADR-0024).
 fortran|^[mp][or][a-z]*[[:space:]]+[a-z_]|^!>||
+# pascal: a top-level `unit` or `program` (u-n-i-t or p-r-o-g as the first
+# four letters, which rules out `procedure`), preceded by a PasDoc `{ ... }`
+# comment. PasDoc (simplexml) checks
+# every declaration of the interface sections and an awk check the constants
+# and variables of the implementation sections (ADR-0025).
+pascal|^[up][nr][io][tg][a-z]*[[:space:]]+[A-Za-z]|[}][[:space:]]*$||
