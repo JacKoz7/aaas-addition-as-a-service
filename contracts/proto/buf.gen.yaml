@@ -1,0 +1,89 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       contracts
+# Module:          contracts/proto/buf.gen.yaml
+# Owning Team:     Platform Enablement Guild (PEG)
+# Classification:  INTERNAL
+# Purpose:         Code generation of the gRPC contracts for the nine
+#                  languages of the services that use them, into
+#                  contracts/gen/<language>/. Run by `make proto` inside the
+#                  aaas/buf:dev tool image, from this directory.
+# Related Docs:    ADR-0020, contracts/proto/README.md,
+#                  contracts/gen/README.md, infra/buf/Dockerfile,
+#                  scripts/proto.sh
+#
+# Every plugin is a local binary of infra/buf/Dockerfile; nothing is fetched
+# from a remote plugin registry. `clean` empties every output directory
+# before generating, so the generated tree never keeps stale files.
+
+version: v2
+
+clean: true
+
+inputs:
+  - directory: .
+
+managed:
+  enabled: true
+  override:
+    # Import path of the generated Go packages:
+    # <prefix>/aaas/<service>/v1.
+    - file_option: go_package_prefix
+      value: github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go
+
+plugins:
+  # Go: messages and gRPC services (google.golang.org/grpc).
+  - local: protoc-gen-go
+    out: ../gen/go
+    opt: paths=source_relative
+  - local: protoc-gen-go-grpc
+    out: ../gen/go
+    opt: paths=source_relative
+
+  # Rust: messages (prost 0.14) and gRPC services (tonic 0.14).
+  - local: protoc-gen-prost
+    out: ../gen/rust
+  - local: protoc-gen-tonic
+    out: ../gen/rust
+
+  # Haskell: messages and lenses (proto-lens 0.7); the services are declared
+  # by the consuming server library (for example grapesy).
+  - local: proto-lens-protoc
+    out: ../gen/haskell
+
+  # OCaml: messages and service signatures (ocaml-protoc-plugin 6).
+  - local: protoc-gen-ocaml
+    out: ../gen/ocaml
+
+  # Elixir: messages and gRPC services (hex packages protobuf and grpc).
+  - local: protoc-gen-elixir
+    out: ../gen/elixir
+    opt: plugins=grpc
+
+  # C#: messages (protoc built-in) and gRPC services (Grpc.Tools).
+  - protoc_builtin: csharp
+    protoc_path: protoc
+    out: ../gen/csharp
+  - local: grpc_csharp_plugin
+    out: ../gen/csharp
+
+  # Crystal: messages only (protobuf.cr has no gRPC runtime; ADR-0020).
+  - local: protoc-gen-crystal
+    out: ../gen/crystal
+
+  # Zig: messages and service descriptors (zig-protobuf 6).
+  - local: protoc-gen-zig
+    out: ../gen/zig
+
+  # Python: messages, type stubs and gRPC services (grpcio), all generated
+  # by the protoc of grpcio-tools; grpc_python goes through the adapter
+  # infra/buf/protoc_gen_grpc_python.py.
+  - protoc_builtin: python
+    protoc_path: protoc-python
+    out: ../gen/python
+  - protoc_builtin: pyi
+    protoc_path: protoc-python
+    out: ../gen/python
+  - local: protoc-gen-grpc_python
+    out: ../gen/python
