@@ -477,6 +477,41 @@ services:
     # volume, owned by the image's non-root user (UID 10001).
     volumes:
       - digit-3-data:/data
+  # --- digit-4 (lua, AEC) ---------------------------------
+  digit-4:
+    build:
+      # Relative to compose/, the directory of the included file.
+      context: ../services/digit-4
+      dockerfile: Dockerfile
+      target: runtime
+    image: aaas/digit-4:dev
+    profiles: [services]
+    # `services` only: the database (SQLite) is embedded in the process, so
+    # the service needs no `data` network and no password.
+    networks: [services]
+    environment:
+      AAAS_SERVICE: digit-4
+      AAAS_ENV: ${AAAS_ENV:-local}
+      AAAS_BOOTSTRAP: ${AAAS_BOOTSTRAP:-env}
+      AAAS_DIGIT: "4"
+      AAAS_DB_PATH: /data/digit-4.db
+      AAAS_LOG_LEVEL: info
+    # Interpreted language (Lua): default limit for interpreted services
+    # (CLAUDE.md 6.2). Measured usage: services/digit-4/docs/CAPACITY.md.
+    mem_limit: 128m
+    cpus: 0.5
+    # SIGTERM ends the accept loop within 200 ms (src/digit/http.lua).
+    stop_grace_period: 10s
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:8080/health || exit 1"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    # SQLite is embedded in the service process; its file lives in this
+    # volume, owned by the image's non-root user (UID 10001).
+    volumes:
+      - digit-4-data:/data
 # AAAS:VOLUMES
 volumes:
   expression-assembler-data: {}
@@ -487,3 +522,4 @@ volumes:
   digit-1-data: {}
   digit-2-data: {}
   digit-3-data: {}
+  digit-4-data: {}

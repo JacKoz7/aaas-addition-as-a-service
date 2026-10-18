@@ -1,0 +1,23 @@
+-- SPDX-License-Identifier: MIT
+-- Copyright (c) 2026 AaaS Contributors
+--
+-- Component:       digit-4
+-- Module:          .busted
+-- Owning Team:     Arithmetic Excellence Center (AEC)
+-- Classification:  INTERNAL
+-- Purpose:         Configuration of busted, the unit test runner: test
+--                  directory and module path.
+-- Related Docs:    services/digit-4/docs/SERVICE_CHARTER.md
+
+--- busted configuration: tests in tests/, modules from src/.
+-- Owner: Arithmetic Excellence Center (AEC). Since: digit-4 0.1.0.
+-- @script busted
+return {
+  default = {
+    ROOT = { "tests" },
+    pattern = "_spec",
+    lpath = "src/?.lua",
+    lua = "lua5.4",
+    verbose = true,
+  },
+}
