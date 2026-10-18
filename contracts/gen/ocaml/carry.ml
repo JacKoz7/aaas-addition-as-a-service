@@ -51,8 +51,17 @@ equals len(digits), a new most significant digit 1 is appended.</p>
 %}
           *)
 
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form) of the addition, carried
+into the event aaas.carry.propagated.v1. A missing or malformed task_id
+yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
         }
-        val make: ?digits:int list -> ?position:int -> unit -> t
+        val make: ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -71,7 +80,7 @@ equals len(digits), a new most significant digit 1 is appended.</p>
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?digits:int list -> ?position:int -> unit -> t
+        type make_t = ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -165,8 +174,17 @@ equals len(digits), a new most significant digit 1 is appended.</p>
 %}
           *)
 
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form) of the addition, carried
+into the event aaas.carry.propagated.v1. A missing or malformed task_id
+yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
         }
-        val make: ?digits:int list -> ?position:int -> unit -> t
+        val make: ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -185,7 +203,7 @@ equals len(digits), a new most significant digit 1 is appended.</p>
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?digits:int list -> ?position:int -> unit -> t
+        type make_t = ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -277,8 +295,17 @@ equals len(digits), a new most significant digit 1 is appended.</p>
 %}
           *)
 
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form) of the addition, carried
+into the event aaas.carry.propagated.v1. A missing or malformed task_id
+yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
         }
-        val make: ?digits:int list -> ?position:int -> unit -> t
+        val make: ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -297,7 +324,7 @@ equals len(digits), a new most significant digit 1 is appended.</p>
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?digits:int list -> ?position:int -> unit -> t
+        type make_t = ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -380,8 +407,17 @@ equals len(digits), a new most significant digit 1 is appended.</p>
 %}
           *)
 
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form) of the addition, carried
+into the event aaas.carry.propagated.v1. A missing or malformed task_id
+yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
         }
-        val make: ?digits:int list -> ?position:int -> unit -> t
+        val make: ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -400,7 +436,7 @@ equals len(digits), a new most significant digit 1 is appended.</p>
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?digits:int list -> ?position:int -> unit -> t
+        type make_t = ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -412,31 +448,34 @@ equals len(digits), a new most significant digit 1 is appended.</p>
         type t = {
           digits:int list;
           position:int;
+          task_id:string;
         }
-        type make_t = ?digits:int list -> ?position:int -> unit -> t
-        let make ?(digits = []) ?(position = 0) () = { digits; position }
+        type make_t = ?digits:int list -> ?position:int -> ?task_id:string -> unit -> t
+        let make ?(digits = []) ?(position = 0) ?(task_id = {||}) () = { digits; position; task_id }
         let merge =
         let merge_digits = Runtime'.Merge.merge Runtime'.Spec.( repeated ((1, "digits", "digits"), uint32_int, packed) ) in
         let merge_position = Runtime'.Merge.merge Runtime'.Spec.( basic ((2, "position", "position"), uint32_int, (0)) ) in
+        let merge_task_id = Runtime'.Merge.merge Runtime'.Spec.( basic ((3, "task_id", "taskId"), string, ({||})) ) in
         fun t1 t2 -> {
         	digits = (merge_digits t1.digits t2.digits);
         	position = (merge_position t1.position t2.position);
+        	task_id = (merge_task_id t1.task_id t2.task_id);
          }
-        let spec () = Runtime'.Spec.( repeated ((1, "digits", "digits"), uint32_int, packed) ^:: basic ((2, "position", "position"), uint32_int, (0)) ^:: nil )
+        let spec () = Runtime'.Spec.( repeated ((1, "digits", "digits"), uint32_int, packed) ^:: basic ((2, "position", "position"), uint32_int, (0)) ^:: basic ((3, "task_id", "taskId"), string, ({||})) ^:: nil )
         let to_proto' =
           let serialize = Runtime'.apply_lazy (fun () -> Runtime'.Serialize.serialize (spec ())) in
-          fun writer { digits; position } -> serialize writer digits position
+          fun writer { digits; position; task_id } -> serialize writer digits position task_id
 
         let to_proto t = let writer = Runtime'.Writer.init () in to_proto' writer t; writer
         let from_proto_exn =
-          let constructor digits position = { digits; position } in
+          let constructor digits position task_id = { digits; position; task_id } in
           Runtime'.apply_lazy (fun () -> Runtime'.Deserialize.deserialize (spec ()) constructor)
         let from_proto writer = Runtime'.Result.catch (fun () -> from_proto_exn writer)
         let to_json options =
           let serialize = Runtime'.Serialize_json.serialize ~message_name:(name ()) (spec ()) options in
-          fun { digits; position } -> serialize digits position
+          fun { digits; position; task_id } -> serialize digits position task_id
         let from_json_exn =
-          let constructor digits position = { digits; position } in
+          let constructor digits position task_id = { digits; position; task_id } in
           Runtime'.apply_lazy (fun () -> Runtime'.Deserialize_json.deserialize ~message_name:(name ()) (spec ()) constructor)
         let from_json json = Runtime'.Result.catch (fun () -> from_json_exn json)
       end

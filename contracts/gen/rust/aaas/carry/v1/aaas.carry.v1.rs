@@ -12,6 +12,11 @@ pub struct PropagateRequest {
     /// equals len(digits), a new most significant digit 1 is appended.
     #[prost(uint32, tag="2")]
     pub position: u32,
+    /// Task identifier (UUIDv7, canonical text form) of the addition, carried
+    /// into the event aaas.carry.propagated.v1. A missing or malformed task_id
+    /// yields the gRPC status INVALID_ARGUMENT.
+    #[prost(string, tag="3")]
+    pub task_id: ::prost::alloc::string::String,
 }
 /// PropagateResponse carries the number after the carry was applied.
 #[derive(Clone, PartialEq, Eq, Hash, ::prost::Message)]

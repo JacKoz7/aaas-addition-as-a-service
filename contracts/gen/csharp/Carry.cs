@@ -24,21 +24,22 @@ namespace Aaas.Carry.V1 {
     static CarryReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "ChlhYWFzL2NhcnJ5L3YxL2NhcnJ5LnByb3RvEg1hYWFzLmNhcnJ5LnYxIkYK",
+            "ChlhYWFzL2NhcnJ5L3YxL2NhcnJ5LnByb3RvEg1hYWFzLmNhcnJ5LnYxIl8K",
             "EFByb3BhZ2F0ZVJlcXVlc3QSFgoGZGlnaXRzGAEgAygNUgZkaWdpdHMSGgoI",
-            "cG9zaXRpb24YAiABKA1SCHBvc2l0aW9uIisKEVByb3BhZ2F0ZVJlc3BvbnNl",
-            "EhYKBmRpZ2l0cxgBIAMoDVIGZGlnaXRzMl4KDENhcnJ5U2VydmljZRJOCglQ",
-            "cm9wYWdhdGUSHy5hYWFzLmNhcnJ5LnYxLlByb3BhZ2F0ZVJlcXVlc3QaIC5h",
-            "YWFzLmNhcnJ5LnYxLlByb3BhZ2F0ZVJlc3BvbnNlQs0BChFjb20uYWFhcy5j",
-            "YXJyeS52MUIKQ2FycnlQcm90b1ABWlZnaXRodWIuY29tL0phY0tvejcvQWFh",
-            "Uy0tLUFkZGl0aW9uLWFzLWEtU2VydmljZS9jb250cmFjdHMvZ2VuL2dvL2Fh",
-            "YXMvY2FycnkvdjE7Y2Fycnl2MaICA0FDWKoCDUFhYXMuQ2FycnkuVjHKAg1B",
-            "YWFzXENhcnJ5XFYx4gIZQWFhc1xDYXJyeVxWMVxHUEJNZXRhZGF0YeoCD0Fh",
-            "YXM6OkNhcnJ5OjpWMWIGcHJvdG8z"));
+            "cG9zaXRpb24YAiABKA1SCHBvc2l0aW9uEhcKB3Rhc2tfaWQYAyABKAlSBnRh",
+            "c2tJZCIrChFQcm9wYWdhdGVSZXNwb25zZRIWCgZkaWdpdHMYASADKA1SBmRp",
+            "Z2l0czJeCgxDYXJyeVNlcnZpY2USTgoJUHJvcGFnYXRlEh8uYWFhcy5jYXJy",
+            "eS52MS5Qcm9wYWdhdGVSZXF1ZXN0GiAuYWFhcy5jYXJyeS52MS5Qcm9wYWdh",
+            "dGVSZXNwb25zZULNAQoRY29tLmFhYXMuY2FycnkudjFCCkNhcnJ5UHJvdG9Q",
+            "AVpWZ2l0aHViLmNvbS9KYWNLb3o3L0FhYVMtLS1BZGRpdGlvbi1hcy1hLVNl",
+            "cnZpY2UvY29udHJhY3RzL2dlbi9nby9hYWFzL2NhcnJ5L3YxO2NhcnJ5djGi",
+            "AgNBQ1iqAg1BYWFzLkNhcnJ5LlYxygINQWFhc1xDYXJyeVxWMeICGUFhYXNc",
+            "Q2FycnlcVjFcR1BCTWV0YWRhdGHqAg9BYWFzOjpDYXJyeTo6VjFiBnByb3Rv",
+            "Mw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Carry.V1.PropagateRequest), global::Aaas.Carry.V1.PropagateRequest.Parser, new[]{ "Digits", "Position" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Carry.V1.PropagateRequest), global::Aaas.Carry.V1.PropagateRequest.Parser, new[]{ "Digits", "Position", "TaskId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Carry.V1.PropagateResponse), global::Aaas.Carry.V1.PropagateResponse.Parser, new[]{ "Digits" }, null, null, null, null)
           }));
     }
@@ -87,6 +88,7 @@ namespace Aaas.Carry.V1 {
     public PropagateRequest(PropagateRequest other) : this() {
       digits_ = other.digits_.Clone();
       position_ = other.position_;
+      taskId_ = other.taskId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -127,6 +129,23 @@ namespace Aaas.Carry.V1 {
       }
     }
 
+    /// <summary>Field number for the "task_id" field.</summary>
+    public const int TaskIdFieldNumber = 3;
+    private string taskId_ = "";
+    /// <summary>
+    /// Task identifier (UUIDv7, canonical text form) of the addition, carried
+    /// into the event aaas.carry.propagated.v1. A missing or malformed task_id
+    /// yields the gRPC status INVALID_ARGUMENT.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TaskId {
+      get { return taskId_; }
+      set {
+        taskId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -144,6 +163,7 @@ namespace Aaas.Carry.V1 {
       }
       if(!digits_.Equals(other.digits_)) return false;
       if (Position != other.Position) return false;
+      if (TaskId != other.TaskId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -153,6 +173,7 @@ namespace Aaas.Carry.V1 {
       int hash = 1;
       hash ^= digits_.GetHashCode();
       if (Position != 0) hash ^= Position.GetHashCode();
+      if (TaskId.Length != 0) hash ^= TaskId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -176,6 +197,10 @@ namespace Aaas.Carry.V1 {
         output.WriteRawTag(16);
         output.WriteUInt32(Position);
       }
+      if (TaskId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(TaskId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -191,6 +216,10 @@ namespace Aaas.Carry.V1 {
         output.WriteRawTag(16);
         output.WriteUInt32(Position);
       }
+      if (TaskId.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(TaskId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -204,6 +233,9 @@ namespace Aaas.Carry.V1 {
       size += digits_.CalculateSize(_repeated_digits_codec);
       if (Position != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(Position);
+      }
+      if (TaskId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TaskId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -220,6 +252,9 @@ namespace Aaas.Carry.V1 {
       digits_.Add(other.digits_);
       if (other.Position != 0) {
         Position = other.Position;
+      }
+      if (other.TaskId.Length != 0) {
+        TaskId = other.TaskId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -249,6 +284,10 @@ namespace Aaas.Carry.V1 {
             Position = input.ReadUInt32();
             break;
           }
+          case 26: {
+            TaskId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -275,6 +314,10 @@ namespace Aaas.Carry.V1 {
           }
           case 16: {
             Position = input.ReadUInt32();
+            break;
+          }
+          case 26: {
+            TaskId = input.ReadString();
             break;
           }
         }

@@ -33,9 +33,11 @@ import qualified Data.ProtoLens.Runtime.Data.Vector.Unboxed as Data.Vector.Unbox
 import qualified Data.ProtoLens.Runtime.Text.Read as Text.Read
 {- | Fields :
      
-         * 'Proto.Aaas.Successor.V1.Successor_Fields.n' @:: Lens' NextRequest Data.Word.Word32@ -}
+         * 'Proto.Aaas.Successor.V1.Successor_Fields.n' @:: Lens' NextRequest Data.Word.Word32@
+         * 'Proto.Aaas.Successor.V1.Successor_Fields.taskId' @:: Lens' NextRequest Data.Text.Text@ -}
 data NextRequest
   = NextRequest'_constructor {_NextRequest'n :: !Data.Word.Word32,
+                              _NextRequest'taskId :: !Data.Text.Text,
                               _NextRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
   deriving stock (Prelude.Eq, Prelude.Ord)
 instance Prelude.Show NextRequest where
@@ -50,12 +52,19 @@ instance Data.ProtoLens.Field.HasField NextRequest "n" Data.Word.Word32 where
         (Lens.Family2.Unchecked.lens
            _NextRequest'n (\ x__ y__ -> x__ {_NextRequest'n = y__}))
         Prelude.id
+instance Data.ProtoLens.Field.HasField NextRequest "taskId" Data.Text.Text where
+  fieldOf _
+    = (Prelude..)
+        (Lens.Family2.Unchecked.lens
+           _NextRequest'taskId (\ x__ y__ -> x__ {_NextRequest'taskId = y__}))
+        Prelude.id
 instance Data.ProtoLens.Message NextRequest where
   messageName _ = Data.Text.pack "aaas.successor.v1.NextRequest"
   packedMessageDescriptor _
     = "\n\
       \\vNextRequest\DC2\f\n\
-      \\SOHn\CAN\SOH \SOH(\rR\SOHn"
+      \\SOHn\CAN\SOH \SOH(\rR\SOHn\DC2\ETB\n\
+      \\atask_id\CAN\STX \SOH(\tR\ACKtaskId"
   packedFileDescriptor _ = packedFileDescriptor
   fieldsByTag
     = let
@@ -67,7 +76,18 @@ instance Data.ProtoLens.Message NextRequest where
               (Data.ProtoLens.PlainField
                  Data.ProtoLens.Optional (Data.ProtoLens.Field.field @"n")) ::
               Data.ProtoLens.FieldDescriptor NextRequest
-      in Data.Map.fromList [(Data.ProtoLens.Tag 1, n__field_descriptor)]
+        taskId__field_descriptor
+          = Data.ProtoLens.FieldDescriptor
+              "task_id"
+              (Data.ProtoLens.ScalarField Data.ProtoLens.StringField ::
+                 Data.ProtoLens.FieldTypeDescriptor Data.Text.Text)
+              (Data.ProtoLens.PlainField
+                 Data.ProtoLens.Optional (Data.ProtoLens.Field.field @"taskId")) ::
+              Data.ProtoLens.FieldDescriptor NextRequest
+      in
+        Data.Map.fromList
+          [(Data.ProtoLens.Tag 1, n__field_descriptor),
+           (Data.ProtoLens.Tag 2, taskId__field_descriptor)]
   unknownFields
     = Lens.Family2.Unchecked.lens
         _NextRequest'_unknownFields
@@ -75,6 +95,7 @@ instance Data.ProtoLens.Message NextRequest where
   defMessage
     = NextRequest'_constructor
         {_NextRequest'n = Data.ProtoLens.fieldDefault,
+         _NextRequest'taskId = Data.ProtoLens.fieldDefault,
          _NextRequest'_unknownFields = []}
   parseMessage
     = let
@@ -104,6 +125,13 @@ instance Data.ProtoLens.Message NextRequest where
                                           Data.ProtoLens.Encoding.Bytes.getVarInt)
                                        "n"
                                 loop (Lens.Family2.set (Data.ProtoLens.Field.field @"n") y x)
+                        18
+                          -> do y <- (Data.ProtoLens.Encoding.Bytes.<?>)
+                                       (do len <- Data.ProtoLens.Encoding.Bytes.getVarInt
+                                           Data.ProtoLens.Encoding.Bytes.getText
+                                             (Prelude.fromIntegral len))
+                                       "task_id"
+                                loop (Lens.Family2.set (Data.ProtoLens.Field.field @"taskId") y x)
                         wire
                           -> do !y <- Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire
                                         wire
@@ -125,14 +153,32 @@ instance Data.ProtoLens.Message NextRequest where
                       (Data.ProtoLens.Encoding.Bytes.putVarInt 8)
                       ((Prelude..)
                          Data.ProtoLens.Encoding.Bytes.putVarInt Prelude.fromIntegral _v))
-             (Data.ProtoLens.Encoding.Wire.buildFieldSet
-                (Lens.Family2.view Data.ProtoLens.unknownFields _x))
+             ((Data.Monoid.<>)
+                (let
+                   _v = Lens.Family2.view (Data.ProtoLens.Field.field @"taskId") _x
+                 in
+                   if (Prelude.==) _v Data.ProtoLens.fieldDefault then
+                       Data.Monoid.mempty
+                   else
+                       (Data.Monoid.<>)
+                         (Data.ProtoLens.Encoding.Bytes.putVarInt 18)
+                         ((Prelude..)
+                            (\ bs
+                               -> (Data.Monoid.<>)
+                                    (Data.ProtoLens.Encoding.Bytes.putVarInt
+                                       (Prelude.fromIntegral (Data.ByteString.length bs)))
+                                    (Data.ProtoLens.Encoding.Bytes.putBytes bs))
+                            Data.Text.Encoding.encodeUtf8 _v))
+                (Data.ProtoLens.Encoding.Wire.buildFieldSet
+                   (Lens.Family2.view Data.ProtoLens.unknownFields _x)))
 instance Control.DeepSeq.NFData NextRequest where
   rnf
     = \ x__
         -> Control.DeepSeq.deepseq
              (_NextRequest'_unknownFields x__)
-             (Control.DeepSeq.deepseq (_NextRequest'n x__) ())
+             (Control.DeepSeq.deepseq
+                (_NextRequest'n x__)
+                (Control.DeepSeq.deepseq (_NextRequest'taskId x__) ()))
 {- | Fields :
      
          * 'Proto.Aaas.Successor.V1.Successor_Fields.n' @:: Lens' NextResponse Data.Word.Word32@ -}
@@ -252,16 +298,16 @@ instance Data.ProtoLens.Service.Types.HasMethodImpl SuccessorService "next" wher
 packedFileDescriptor :: Data.ByteString.ByteString
 packedFileDescriptor
   = "\n\
-    \!aaas/successor/v1/successor.proto\DC2\DC1aaas.successor.v1\"\ESC\n\
+    \!aaas/successor/v1/successor.proto\DC2\DC1aaas.successor.v1\"4\n\
     \\vNextRequest\DC2\f\n\
-    \\SOHn\CAN\SOH \SOH(\rR\SOHn\"\FS\n\
+    \\SOHn\CAN\SOH \SOH(\rR\SOHn\DC2\ETB\n\
+    \\atask_id\CAN\STX \SOH(\tR\ACKtaskId\"\FS\n\
     \\fNextResponse\DC2\f\n\
     \\SOHn\CAN\SOH \SOH(\rR\SOHn2[\n\
     \\DLESuccessorService\DC2G\n\
     \\EOTNext\DC2\RS.aaas.successor.v1.NextRequest\SUB\US.aaas.successor.v1.NextResponseB\237\SOH\n\
-    \\NAKcom.aaas.successor.v1B\SOSuccessorProtoP\SOHZ^github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/successor/v1;successorv1\162\STX\ETXASX\170\STX\DC1Aaas.Successor.V1\202\STX\DC1Aaas\\Successor\\V1\226\STX\GSAaas\\Successor\\V1\\GPBMetadata\234\STX\DC3Aaas::Successor::V1J\128\n\
-    \\n\
-    \\ACK\DC2\EOT\f\NUL&\SOH\n\
+    \\NAKcom.aaas.successor.v1B\SOSuccessorProtoP\SOHZ^github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/successor/v1;successorv1\162\STX\ETXASX\170\STX\DC1Aaas.Successor.V1\202\STX\DC1Aaas\\Successor\\V1\226\STX\GSAaas\\Successor\\V1\\GPBMetadata\234\STX\DC3Aaas::Successor::V1J\172\r\n\
+    \\ACK\DC2\EOT\f\NUL-\SOH\n\
     \\223\ETX\n\
     \\SOH\f\DC2\ETX\f\NUL\DC22\212\ETX SPDX-License-Identifier: MIT\n\
     \ Copyright (c) 2026 AaaS Contributors\n\
@@ -299,35 +345,49 @@ packedFileDescriptor
     \\ENQ\ACK\NUL\STX\NUL\STX\DC2\ETX\EM\v\SYN\n\
     \\f\n\
     \\ENQ\ACK\NUL\STX\NUL\ETX\DC2\ETX\EM!-\n\
-    \J\n\
-    \\STX\EOT\NUL\DC2\EOT\GS\NUL \SOH\SUB> NextRequest carries the number whose successor is requested.\n\
+    \l\n\
+    \\STX\EOT\NUL\DC2\EOT\RS\NUL'\SOH\SUB` NextRequest carries the number whose successor is requested and the task\n\
+    \ the call belongs to.\n\
     \\n\
     \\n\
     \\n\
-    \\ETX\EOT\NUL\SOH\DC2\ETX\GS\b\DC3\n\
+    \\ETX\EOT\NUL\SOH\DC2\ETX\RS\b\DC3\n\
     \\f\n\
-    \\ENQ\EOT\NUL\STX\NUL\ENQ\DC2\ETX\US\STX\b\n\
+    \\ENQ\EOT\NUL\STX\NUL\ENQ\DC2\ETX \STX\b\n\
     \,\n\
-    \\EOT\EOT\NUL\STX\NUL\DC2\ETX\US\STX\SI\SUB\US Natural number in 0..199 997.\n\
+    \\EOT\EOT\NUL\STX\NUL\DC2\ETX \STX\SI\SUB\US Natural number in 0..199 997.\n\
     \\n\
     \\f\n\
-    \\ENQ\EOT\NUL\STX\NUL\SOH\DC2\ETX\US\t\n\
+    \\ENQ\EOT\NUL\STX\NUL\SOH\DC2\ETX \t\n\
     \\n\
     \\f\n\
-    \\ENQ\EOT\NUL\STX\NUL\ETX\DC2\ETX\US\r\SO\n\
+    \\ENQ\EOT\NUL\STX\NUL\ETX\DC2\ETX \r\SO\n\
+    \\f\n\
+    \\ENQ\EOT\NUL\STX\SOH\ENQ\DC2\ETX&\STX\b\n\
+    \\221\STX\n\
+    \\EOT\EOT\NUL\STX\SOH\DC2\ETX&\STX\NAK\SUB\207\STX Task identifier (UUIDv7, canonical text form). An addition asks for the\n\
+    \ successor of each value from a to a + b - 1 exactly once, so\n\
+    \ (task_id, n) identifies a call: a retried call is answered from the\n\
+    \ call log without a second log entry or event (ADR-0016). A missing or\n\
+    \ malformed task_id yields the gRPC status INVALID_ARGUMENT.\n\
+    \\n\
+    \\f\n\
+    \\ENQ\EOT\NUL\STX\SOH\SOH\DC2\ETX&\t\DLE\n\
+    \\f\n\
+    \\ENQ\EOT\NUL\STX\SOH\ETX\DC2\ETX&\DC3\DC4\n\
     \1\n\
-    \\STX\EOT\SOH\DC2\EOT#\NUL&\SOH\SUB% NextResponse carries the successor.\n\
+    \\STX\EOT\SOH\DC2\EOT*\NUL-\SOH\SUB% NextResponse carries the successor.\n\
     \\n\
     \\n\
     \\n\
-    \\ETX\EOT\SOH\SOH\DC2\ETX#\b\DC4\n\
+    \\ETX\EOT\SOH\SOH\DC2\ETX*\b\DC4\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\ENQ\DC2\ETX%\STX\b\n\
+    \\ENQ\EOT\SOH\STX\NUL\ENQ\DC2\ETX,\STX\b\n\
     \$\n\
-    \\EOT\EOT\SOH\STX\NUL\DC2\ETX%\STX\SI\SUB\ETB n + 1, in 1..199 998.\n\
+    \\EOT\EOT\SOH\STX\NUL\DC2\ETX,\STX\SI\SUB\ETB n + 1, in 1..199 998.\n\
     \\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\SOH\DC2\ETX%\t\n\
+    \\ENQ\EOT\SOH\STX\NUL\SOH\DC2\ETX,\t\n\
     \\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\ETX\DC2\ETX%\r\SOb\ACKproto3"
+    \\ENQ\EOT\SOH\STX\NUL\ETX\DC2\ETX,\r\SOb\ACKproto3"

@@ -35,10 +35,12 @@ import qualified Data.ProtoLens.Runtime.Text.Read as Text.Read
      
          * 'Proto.Aaas.Carry.V1.Carry_Fields.digits' @:: Lens' PropagateRequest [Data.Word.Word32]@
          * 'Proto.Aaas.Carry.V1.Carry_Fields.vec'digits' @:: Lens' PropagateRequest (Data.Vector.Unboxed.Vector Data.Word.Word32)@
-         * 'Proto.Aaas.Carry.V1.Carry_Fields.position' @:: Lens' PropagateRequest Data.Word.Word32@ -}
+         * 'Proto.Aaas.Carry.V1.Carry_Fields.position' @:: Lens' PropagateRequest Data.Word.Word32@
+         * 'Proto.Aaas.Carry.V1.Carry_Fields.taskId' @:: Lens' PropagateRequest Data.Text.Text@ -}
 data PropagateRequest
   = PropagateRequest'_constructor {_PropagateRequest'digits :: !(Data.Vector.Unboxed.Vector Data.Word.Word32),
                                    _PropagateRequest'position :: !Data.Word.Word32,
+                                   _PropagateRequest'taskId :: !Data.Text.Text,
                                    _PropagateRequest'_unknownFields :: !Data.ProtoLens.FieldSet}
   deriving stock (Prelude.Eq, Prelude.Ord)
 instance Prelude.Show PropagateRequest where
@@ -70,13 +72,21 @@ instance Data.ProtoLens.Field.HasField PropagateRequest "position" Data.Word.Wor
            _PropagateRequest'position
            (\ x__ y__ -> x__ {_PropagateRequest'position = y__}))
         Prelude.id
+instance Data.ProtoLens.Field.HasField PropagateRequest "taskId" Data.Text.Text where
+  fieldOf _
+    = (Prelude..)
+        (Lens.Family2.Unchecked.lens
+           _PropagateRequest'taskId
+           (\ x__ y__ -> x__ {_PropagateRequest'taskId = y__}))
+        Prelude.id
 instance Data.ProtoLens.Message PropagateRequest where
   messageName _ = Data.Text.pack "aaas.carry.v1.PropagateRequest"
   packedMessageDescriptor _
     = "\n\
       \\DLEPropagateRequest\DC2\SYN\n\
       \\ACKdigits\CAN\SOH \ETX(\rR\ACKdigits\DC2\SUB\n\
-      \\bposition\CAN\STX \SOH(\rR\bposition"
+      \\bposition\CAN\STX \SOH(\rR\bposition\DC2\ETB\n\
+      \\atask_id\CAN\ETX \SOH(\tR\ACKtaskId"
   packedFileDescriptor _ = packedFileDescriptor
   fieldsByTag
     = let
@@ -97,10 +107,19 @@ instance Data.ProtoLens.Message PropagateRequest where
                  Data.ProtoLens.Optional
                  (Data.ProtoLens.Field.field @"position")) ::
               Data.ProtoLens.FieldDescriptor PropagateRequest
+        taskId__field_descriptor
+          = Data.ProtoLens.FieldDescriptor
+              "task_id"
+              (Data.ProtoLens.ScalarField Data.ProtoLens.StringField ::
+                 Data.ProtoLens.FieldTypeDescriptor Data.Text.Text)
+              (Data.ProtoLens.PlainField
+                 Data.ProtoLens.Optional (Data.ProtoLens.Field.field @"taskId")) ::
+              Data.ProtoLens.FieldDescriptor PropagateRequest
       in
         Data.Map.fromList
           [(Data.ProtoLens.Tag 1, digits__field_descriptor),
-           (Data.ProtoLens.Tag 2, position__field_descriptor)]
+           (Data.ProtoLens.Tag 2, position__field_descriptor),
+           (Data.ProtoLens.Tag 3, taskId__field_descriptor)]
   unknownFields
     = Lens.Family2.Unchecked.lens
         _PropagateRequest'_unknownFields
@@ -109,6 +128,7 @@ instance Data.ProtoLens.Message PropagateRequest where
     = PropagateRequest'_constructor
         {_PropagateRequest'digits = Data.Vector.Generic.empty,
          _PropagateRequest'position = Data.ProtoLens.fieldDefault,
+         _PropagateRequest'taskId = Data.ProtoLens.fieldDefault,
          _PropagateRequest'_unknownFields = []}
   parseMessage
     = let
@@ -178,6 +198,15 @@ instance Data.ProtoLens.Message PropagateRequest where
                                 loop
                                   (Lens.Family2.set (Data.ProtoLens.Field.field @"position") y x)
                                   mutable'digits
+                        26
+                          -> do y <- (Data.ProtoLens.Encoding.Bytes.<?>)
+                                       (do len <- Data.ProtoLens.Encoding.Bytes.getVarInt
+                                           Data.ProtoLens.Encoding.Bytes.getText
+                                             (Prelude.fromIntegral len))
+                                       "task_id"
+                                loop
+                                  (Lens.Family2.set (Data.ProtoLens.Field.field @"taskId") y x)
+                                  mutable'digits
                         wire
                           -> do !y <- Data.ProtoLens.Encoding.Wire.parseTaggedValueFromWire
                                         wire
@@ -223,8 +252,24 @@ instance Data.ProtoLens.Message PropagateRequest where
                          (Data.ProtoLens.Encoding.Bytes.putVarInt 16)
                          ((Prelude..)
                             Data.ProtoLens.Encoding.Bytes.putVarInt Prelude.fromIntegral _v))
-                (Data.ProtoLens.Encoding.Wire.buildFieldSet
-                   (Lens.Family2.view Data.ProtoLens.unknownFields _x)))
+                ((Data.Monoid.<>)
+                   (let
+                      _v = Lens.Family2.view (Data.ProtoLens.Field.field @"taskId") _x
+                    in
+                      if (Prelude.==) _v Data.ProtoLens.fieldDefault then
+                          Data.Monoid.mempty
+                      else
+                          (Data.Monoid.<>)
+                            (Data.ProtoLens.Encoding.Bytes.putVarInt 26)
+                            ((Prelude..)
+                               (\ bs
+                                  -> (Data.Monoid.<>)
+                                       (Data.ProtoLens.Encoding.Bytes.putVarInt
+                                          (Prelude.fromIntegral (Data.ByteString.length bs)))
+                                       (Data.ProtoLens.Encoding.Bytes.putBytes bs))
+                               Data.Text.Encoding.encodeUtf8 _v))
+                   (Data.ProtoLens.Encoding.Wire.buildFieldSet
+                      (Lens.Family2.view Data.ProtoLens.unknownFields _x))))
 instance Control.DeepSeq.NFData PropagateRequest where
   rnf
     = \ x__
@@ -232,7 +277,9 @@ instance Control.DeepSeq.NFData PropagateRequest where
              (_PropagateRequest'_unknownFields x__)
              (Control.DeepSeq.deepseq
                 (_PropagateRequest'digits x__)
-                (Control.DeepSeq.deepseq (_PropagateRequest'position x__) ()))
+                (Control.DeepSeq.deepseq
+                   (_PropagateRequest'position x__)
+                   (Control.DeepSeq.deepseq (_PropagateRequest'taskId x__) ())))
 {- | Fields :
      
          * 'Proto.Aaas.Carry.V1.Carry_Fields.digits' @:: Lens' PropagateResponse [Data.Word.Word32]@
@@ -409,17 +456,18 @@ instance Data.ProtoLens.Service.Types.HasMethodImpl CarryService "propagate" whe
 packedFileDescriptor :: Data.ByteString.ByteString
 packedFileDescriptor
   = "\n\
-    \\EMaaas/carry/v1/carry.proto\DC2\raaas.carry.v1\"F\n\
+    \\EMaaas/carry/v1/carry.proto\DC2\raaas.carry.v1\"_\n\
     \\DLEPropagateRequest\DC2\SYN\n\
     \\ACKdigits\CAN\SOH \ETX(\rR\ACKdigits\DC2\SUB\n\
-    \\bposition\CAN\STX \SOH(\rR\bposition\"+\n\
+    \\bposition\CAN\STX \SOH(\rR\bposition\DC2\ETB\n\
+    \\atask_id\CAN\ETX \SOH(\tR\ACKtaskId\"+\n\
     \\DC1PropagateResponse\DC2\SYN\n\
     \\ACKdigits\CAN\SOH \ETX(\rR\ACKdigits2^\n\
     \\fCarryService\DC2N\n\
     \\tPropagate\DC2\US.aaas.carry.v1.PropagateRequest\SUB .aaas.carry.v1.PropagateResponseB\205\SOH\n\
     \\DC1com.aaas.carry.v1B\n\
-    \CarryProtoP\SOHZVgithub.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/carry/v1;carryv1\162\STX\ETXACX\170\STX\rAaas.Carry.V1\202\STX\rAaas\\Carry\\V1\226\STX\EMAaas\\Carry\\V1\\GPBMetadata\234\STX\SIAaas::Carry::V1J\134\DLE\n\
-    \\ACK\DC2\EOT\f\NUL/\SOH\n\
+    \CarryProtoP\SOHZVgithub.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/carry/v1;carryv1\162\STX\ETXACX\170\STX\rAaas.Carry.V1\202\STX\rAaas\\Carry\\V1\226\STX\EMAaas\\Carry\\V1\\GPBMetadata\234\STX\SIAaas::Carry::V1J\252\DC1\n\
+    \\ACK\DC2\EOT\f\NUL3\SOH\n\
     \\213\ETX\n\
     \\SOH\f\DC2\ETX\f\NUL\DC22\202\ETX SPDX-License-Identifier: MIT\n\
     \ Copyright (c) 2026 AaaS Contributors\n\
@@ -460,7 +508,7 @@ packedFileDescriptor
     \\f\n\
     \\ENQ\ACK\NUL\STX\NUL\ETX\DC2\ETX\FS+<\n\
     \l\n\
-    \\STX\EOT\NUL\DC2\EOT!\NUL(\SOH\SUB` PropagateRequest carries a number as decimal digits and the position that\n\
+    \\STX\EOT\NUL\DC2\EOT!\NUL,\SOH\SUB` PropagateRequest carries a number as decimal digits and the position that\n\
     \ receives the carry.\n\
     \\n\
     \\n\
@@ -489,22 +537,33 @@ packedFileDescriptor
     \\ENQ\EOT\NUL\STX\SOH\SOH\DC2\ETX'\t\DC1\n\
     \\f\n\
     \\ENQ\EOT\NUL\STX\SOH\ETX\DC2\ETX'\DC4\NAK\n\
-    \O\n\
-    \\STX\EOT\SOH\DC2\EOT+\NUL/\SOH\SUBC PropagateResponse carries the number after the carry was applied.\n\
-    \\n\
-    \\n\
-    \\n\
-    \\ETX\EOT\SOH\SOH\DC2\ETX+\b\EM\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\EOT\DC2\ETX.\STX\n\
+    \\ENQ\EOT\NUL\STX\STX\ENQ\DC2\ETX+\STX\b\n\
+    \\201\SOH\n\
+    \\EOT\EOT\NUL\STX\STX\DC2\ETX+\STX\NAK\SUB\187\SOH Task identifier (UUIDv7, canonical text form) of the addition, carried\n\
+    \ into the event aaas.carry.propagated.v1. A missing or malformed task_id\n\
+    \ yields the gRPC status INVALID_ARGUMENT.\n\
+    \\n\
+    \\f\n\
+    \\ENQ\EOT\NUL\STX\STX\SOH\DC2\ETX+\t\DLE\n\
+    \\f\n\
+    \\ENQ\EOT\NUL\STX\STX\ETX\DC2\ETX+\DC3\DC4\n\
+    \O\n\
+    \\STX\EOT\SOH\DC2\EOT/\NUL3\SOH\SUBC PropagateResponse carries the number after the carry was applied.\n\
+    \\n\
+    \\n\
+    \\n\
+    \\ETX\EOT\SOH\SOH\DC2\ETX/\b\EM\n\
+    \\f\n\
+    \\ENQ\EOT\SOH\STX\NUL\EOT\DC2\ETX2\STX\n\
     \\n\
     \\148\SOH\n\
-    \\EOT\EOT\SOH\STX\NUL\DC2\ETX.\STX\GS\SUB\134\SOH Decimal digits of the result, least significant first; one element\n\
+    \\EOT\EOT\SOH\STX\NUL\DC2\ETX2\STX\GS\SUB\134\SOH Decimal digits of the result, least significant first; one element\n\
     \ longer than the request when the carry passed the highest digit.\n\
     \\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\ENQ\DC2\ETX.\v\DC1\n\
+    \\ENQ\EOT\SOH\STX\NUL\ENQ\DC2\ETX2\v\DC1\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\SOH\DC2\ETX.\DC2\CAN\n\
+    \\ENQ\EOT\SOH\STX\NUL\SOH\DC2\ETX2\DC2\CAN\n\
     \\f\n\
-    \\ENQ\EOT\SOH\STX\NUL\ETX\DC2\ETX.\ESC\FSb\ACKproto3"
+    \\ENQ\EOT\SOH\STX\NUL\ETX\DC2\ETX2\ESC\FSb\ACKproto3"

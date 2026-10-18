@@ -10,6 +10,7 @@ module Aaas
         
         contract_of "proto3" do
           optional :n, :uint32, 1
+          optional :task_id, :string, 2
         end
       end
       

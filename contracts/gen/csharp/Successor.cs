@@ -25,20 +25,20 @@ namespace Aaas.Successor.V1 {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
             "CiFhYWFzL3N1Y2Nlc3Nvci92MS9zdWNjZXNzb3IucHJvdG8SEWFhYXMuc3Vj",
-            "Y2Vzc29yLnYxIhsKC05leHRSZXF1ZXN0EgwKAW4YASABKA1SAW4iHAoMTmV4",
-            "dFJlc3BvbnNlEgwKAW4YASABKA1SAW4yWwoQU3VjY2Vzc29yU2VydmljZRJH",
-            "CgROZXh0Eh4uYWFhcy5zdWNjZXNzb3IudjEuTmV4dFJlcXVlc3QaHy5hYWFz",
-            "LnN1Y2Nlc3Nvci52MS5OZXh0UmVzcG9uc2VC7QEKFWNvbS5hYWFzLnN1Y2Nl",
-            "c3Nvci52MUIOU3VjY2Vzc29yUHJvdG9QAVpeZ2l0aHViLmNvbS9KYWNLb3o3",
-            "L0FhYVMtLS1BZGRpdGlvbi1hcy1hLVNlcnZpY2UvY29udHJhY3RzL2dlbi9n",
-            "by9hYWFzL3N1Y2Nlc3Nvci92MTtzdWNjZXNzb3J2MaICA0FTWKoCEUFhYXMu",
-            "U3VjY2Vzc29yLlYxygIRQWFhc1xTdWNjZXNzb3JcVjHiAh1BYWFzXFN1Y2Nl",
-            "c3NvclxWMVxHUEJNZXRhZGF0YeoCE0FhYXM6OlN1Y2Nlc3Nvcjo6VjFiBnBy",
-            "b3RvMw=="));
+            "Y2Vzc29yLnYxIjQKC05leHRSZXF1ZXN0EgwKAW4YASABKA1SAW4SFwoHdGFz",
+            "a19pZBgCIAEoCVIGdGFza0lkIhwKDE5leHRSZXNwb25zZRIMCgFuGAEgASgN",
+            "UgFuMlsKEFN1Y2Nlc3NvclNlcnZpY2USRwoETmV4dBIeLmFhYXMuc3VjY2Vz",
+            "c29yLnYxLk5leHRSZXF1ZXN0Gh8uYWFhcy5zdWNjZXNzb3IudjEuTmV4dFJl",
+            "c3BvbnNlQu0BChVjb20uYWFhcy5zdWNjZXNzb3IudjFCDlN1Y2Nlc3NvclBy",
+            "b3RvUAFaXmdpdGh1Yi5jb20vSmFjS296Ny9BYWFTLS0tQWRkaXRpb24tYXMt",
+            "YS1TZXJ2aWNlL2NvbnRyYWN0cy9nZW4vZ28vYWFhcy9zdWNjZXNzb3IvdjE7",
+            "c3VjY2Vzc29ydjGiAgNBU1iqAhFBYWFzLlN1Y2Nlc3Nvci5WMcoCEUFhYXNc",
+            "U3VjY2Vzc29yXFYx4gIdQWFhc1xTdWNjZXNzb3JcVjFcR1BCTWV0YWRhdGHq",
+            "AhNBYWFzOjpTdWNjZXNzb3I6OlYxYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Successor.V1.NextRequest), global::Aaas.Successor.V1.NextRequest.Parser, new[]{ "N" }, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Successor.V1.NextRequest), global::Aaas.Successor.V1.NextRequest.Parser, new[]{ "N", "TaskId" }, null, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Aaas.Successor.V1.NextResponse), global::Aaas.Successor.V1.NextResponse.Parser, new[]{ "N" }, null, null, null, null)
           }));
     }
@@ -47,7 +47,8 @@ namespace Aaas.Successor.V1 {
   }
   #region Messages
   /// <summary>
-  /// NextRequest carries the number whose successor is requested.
+  /// NextRequest carries the number whose successor is requested and the task
+  /// the call belongs to.
   /// </summary>
   [global::System.Diagnostics.DebuggerDisplayAttribute("{ToString(),nq}")]
   public sealed partial class NextRequest : pb::IMessage<NextRequest>
@@ -85,6 +86,7 @@ namespace Aaas.Successor.V1 {
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public NextRequest(NextRequest other) : this() {
       n_ = other.n_;
+      taskId_ = other.taskId_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -109,6 +111,25 @@ namespace Aaas.Successor.V1 {
       }
     }
 
+    /// <summary>Field number for the "task_id" field.</summary>
+    public const int TaskIdFieldNumber = 2;
+    private string taskId_ = "";
+    /// <summary>
+    /// Task identifier (UUIDv7, canonical text form). An addition asks for the
+    /// successor of each value from a to a + b - 1 exactly once, so
+    /// (task_id, n) identifies a call: a retried call is answered from the
+    /// call log without a second log entry or event (ADR-0016). A missing or
+    /// malformed task_id yields the gRPC status INVALID_ARGUMENT.
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
+    public string TaskId {
+      get { return taskId_; }
+      set {
+        taskId_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     [global::System.CodeDom.Compiler.GeneratedCode("protoc", null)]
     public override bool Equals(object other) {
@@ -125,6 +146,7 @@ namespace Aaas.Successor.V1 {
         return true;
       }
       if (N != other.N) return false;
+      if (TaskId != other.TaskId) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -133,6 +155,7 @@ namespace Aaas.Successor.V1 {
     public override int GetHashCode() {
       int hash = 1;
       if (N != 0) hash ^= N.GetHashCode();
+      if (TaskId.Length != 0) hash ^= TaskId.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -155,6 +178,10 @@ namespace Aaas.Successor.V1 {
         output.WriteRawTag(8);
         output.WriteUInt32(N);
       }
+      if (TaskId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(TaskId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -169,6 +196,10 @@ namespace Aaas.Successor.V1 {
         output.WriteRawTag(8);
         output.WriteUInt32(N);
       }
+      if (TaskId.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(TaskId);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(ref output);
       }
@@ -181,6 +212,9 @@ namespace Aaas.Successor.V1 {
       int size = 0;
       if (N != 0) {
         size += 1 + pb::CodedOutputStream.ComputeUInt32Size(N);
+      }
+      if (TaskId.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(TaskId);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -196,6 +230,9 @@ namespace Aaas.Successor.V1 {
       }
       if (other.N != 0) {
         N = other.N;
+      }
+      if (other.TaskId.Length != 0) {
+        TaskId = other.TaskId;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -220,6 +257,10 @@ namespace Aaas.Successor.V1 {
             N = input.ReadUInt32();
             break;
           }
+          case 18: {
+            TaskId = input.ReadString();
+            break;
+          }
         }
       }
     #endif
@@ -241,6 +282,10 @@ namespace Aaas.Successor.V1 {
             break;
           case 8: {
             N = input.ReadUInt32();
+            break;
+          }
+          case 18: {
+            TaskId = input.ReadString();
             break;
           }
         }

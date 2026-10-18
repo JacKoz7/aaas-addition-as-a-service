@@ -7,12 +7,14 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class PropagateRequest(_message.Message):
-    __slots__ = ("digits", "position")
+    __slots__ = ("digits", "position", "task_id")
     DIGITS_FIELD_NUMBER: _ClassVar[int]
     POSITION_FIELD_NUMBER: _ClassVar[int]
+    TASK_ID_FIELD_NUMBER: _ClassVar[int]
     digits: _containers.RepeatedScalarFieldContainer[int]
     position: int
-    def __init__(self, digits: _Optional[_Iterable[int]] = ..., position: _Optional[int] = ...) -> None: ...
+    task_id: str
+    def __init__(self, digits: _Optional[_Iterable[int]] = ..., position: _Optional[int] = ..., task_id: _Optional[str] = ...) -> None: ...
 
 class PropagateResponse(_message.Message):
     __slots__ = ("digits",)

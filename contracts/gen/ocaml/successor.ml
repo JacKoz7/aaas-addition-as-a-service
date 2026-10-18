@@ -29,18 +29,32 @@ module rec Aaas : sig
 
       (**
 {%html:
-<p>NextRequest carries the number whose successor is requested.</p>
+<p>NextRequest carries the number whose successor is requested and the task
+the call belongs to.</p>
 %}
       *)
       module rec NextRequest : sig
-        type t = (int)
-        (**
+        type t = {
+          n:int;
+          (**
 {%html:
 <p>Natural number in 0..199 997.</p>
 %}
-        *)
+          *)
 
-        val make: ?n:int -> unit -> t
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form). An addition asks for the
+successor of each value from a to a + b - 1 exactly once, so
+(task_id, n) identifies a call: a retried call is answered from the
+call log without a second log entry or event (ADR-0016). A missing or
+malformed task_id yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
+        }
+        val make: ?n:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -59,7 +73,7 @@ module rec Aaas : sig
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?n:int -> unit -> t
+        type make_t = ?n:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -130,18 +144,32 @@ end = struct
 
       (**
 {%html:
-<p>NextRequest carries the number whose successor is requested.</p>
+<p>NextRequest carries the number whose successor is requested and the task
+the call belongs to.</p>
 %}
       *)
       module rec NextRequest : sig
-        type t = (int)
-        (**
+        type t = {
+          n:int;
+          (**
 {%html:
 <p>Natural number in 0..199 997.</p>
 %}
-        *)
+          *)
 
-        val make: ?n:int -> unit -> t
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form). An addition asks for the
+successor of each value from a to a + b - 1 exactly once, so
+(task_id, n) identifies a call: a retried call is answered from the
+call log without a second log entry or event (ADR-0016). A missing or
+malformed task_id yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
+        }
+        val make: ?n:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -160,7 +188,7 @@ end = struct
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?n:int -> unit -> t
+        type make_t = ?n:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -229,18 +257,32 @@ end = struct
 
       (**
 {%html:
-<p>NextRequest carries the number whose successor is requested.</p>
+<p>NextRequest carries the number whose successor is requested and the task
+the call belongs to.</p>
 %}
       *)
       module rec NextRequest : sig
-        type t = (int)
-        (**
+        type t = {
+          n:int;
+          (**
 {%html:
 <p>Natural number in 0..199 997.</p>
 %}
-        *)
+          *)
 
-        val make: ?n:int -> unit -> t
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form). An addition asks for the
+successor of each value from a to a + b - 1 exactly once, so
+(task_id, n) identifies a call: a retried call is answered from the
+call log without a second log entry or event (ADR-0016). A missing or
+malformed task_id yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
+        }
+        val make: ?n:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -259,7 +301,7 @@ end = struct
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?n:int -> unit -> t
+        type make_t = ?n:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -324,14 +366,27 @@ end = struct
 
     end = struct
       module rec NextRequest : sig
-        type t = (int)
-        (**
+        type t = {
+          n:int;
+          (**
 {%html:
 <p>Natural number in 0..199 997.</p>
 %}
-        *)
+          *)
 
-        val make: ?n:int -> unit -> t
+          task_id:string;
+          (**
+{%html:
+<p>Task identifier (UUIDv7, canonical text form). An addition asks for the
+successor of each value from a to a + b - 1 exactly once, so
+(task_id, n) identifies a call: a retried call is answered from the
+call log without a second log entry or event (ADR-0016). A missing or
+malformed task_id yields the gRPC status INVALID_ARGUMENT.</p>
+%}
+          *)
+
+        }
+        val make: ?n:int -> ?task_id:string -> unit -> t
         (** Helper function to generate a message using default values *)
 
         val to_proto: t -> Runtime'.Writer.t
@@ -350,7 +405,7 @@ end = struct
         (** Fully qualified protobuf name of this message *)
 
         (**/**)
-        type make_t = ?n:int -> unit -> t
+        type make_t = ?n:int -> ?task_id:string -> unit -> t
         val merge: t -> t -> t
         val to_proto': Runtime'.Writer.t -> t -> unit
         val from_proto_exn: Runtime'.Reader.t -> t
@@ -359,27 +414,34 @@ end = struct
       end = struct
         module This'_ = NextRequest
         let name () = ".aaas.successor.v1.NextRequest"
-        type t = (int)
-        type make_t = ?n:int -> unit -> t
-        let make ?(n = 0) () = (n)
+        type t = {
+          n:int;
+          task_id:string;
+        }
+        type make_t = ?n:int -> ?task_id:string -> unit -> t
+        let make ?(n = 0) ?(task_id = {||}) () = { n; task_id }
         let merge =
         let merge_n = Runtime'.Merge.merge Runtime'.Spec.( basic ((1, "n", "n"), uint32_int, (0)) ) in
-        fun (t1_n) (t2_n) -> merge_n t1_n t2_n
-        let spec () = Runtime'.Spec.( basic ((1, "n", "n"), uint32_int, (0)) ^:: nil )
+        let merge_task_id = Runtime'.Merge.merge Runtime'.Spec.( basic ((2, "task_id", "taskId"), string, ({||})) ) in
+        fun t1 t2 -> {
+        	n = (merge_n t1.n t2.n);
+        	task_id = (merge_task_id t1.task_id t2.task_id);
+         }
+        let spec () = Runtime'.Spec.( basic ((1, "n", "n"), uint32_int, (0)) ^:: basic ((2, "task_id", "taskId"), string, ({||})) ^:: nil )
         let to_proto' =
           let serialize = Runtime'.apply_lazy (fun () -> Runtime'.Serialize.serialize (spec ())) in
-          fun writer (n) -> serialize writer n
+          fun writer { n; task_id } -> serialize writer n task_id
 
         let to_proto t = let writer = Runtime'.Writer.init () in to_proto' writer t; writer
         let from_proto_exn =
-          let constructor n = (n) in
+          let constructor n task_id = { n; task_id } in
           Runtime'.apply_lazy (fun () -> Runtime'.Deserialize.deserialize (spec ()) constructor)
         let from_proto writer = Runtime'.Result.catch (fun () -> from_proto_exn writer)
         let to_json options =
           let serialize = Runtime'.Serialize_json.serialize ~message_name:(name ()) (spec ()) options in
-          fun (n) -> serialize n
+          fun { n; task_id } -> serialize n task_id
         let from_json_exn =
-          let constructor n = (n) in
+          let constructor n task_id = { n; task_id } in
           Runtime'.apply_lazy (fun () -> Runtime'.Deserialize_json.deserialize ~message_name:(name ()) (spec ()) constructor)
         let from_json json = Runtime'.Result.catch (fun () -> from_json_exn json)
       end

@@ -4,13 +4,17 @@ const std = @import("std");
 
 const protobuf = @import("protobuf");
 const fd = protobuf.fd;
+const fdf = protobuf.fdf;
 
-/// NextRequest carries the number whose successor is requested.
+/// NextRequest carries the number whose successor is requested and the task
+/// the call belongs to.
 pub const NextRequest = struct {
     n: u32 = 0,
+    task_id: []const u8 = &.{},
 
     pub const _desc_table = .{
         .n = fd(1, .{ .scalar = .uint32 }),
+        .task_id = fdf(2, .{ .scalar = .string }, .{ .utf8_validation = .verify }),
     };
 
     /// Encodes the message to the writer

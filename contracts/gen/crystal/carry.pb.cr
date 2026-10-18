@@ -11,6 +11,7 @@ module Aaas
         contract_of "proto3" do
           repeated :digits, :uint32, 1
           optional :position, :uint32, 2
+          optional :task_id, :string, 3
         end
       end
       

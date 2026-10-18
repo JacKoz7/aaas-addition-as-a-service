@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x61\x61\x61s/carry/v1/carry.proto\x12\raaas.carry.v1\"F\n\x10PropagateRequest\x12\x16\n\x06\x64igits\x18\x01 \x03(\rR\x06\x64igits\x12\x1a\n\x08position\x18\x02 \x01(\rR\x08position\"+\n\x11PropagateResponse\x12\x16\n\x06\x64igits\x18\x01 \x03(\rR\x06\x64igits2^\n\x0c\x43\x61rryService\x12N\n\tPropagate\x12\x1f.aaas.carry.v1.PropagateRequest\x1a .aaas.carry.v1.PropagateResponseB\xcd\x01\n\x11\x63om.aaas.carry.v1B\nCarryProtoP\x01ZVgithub.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/carry/v1;carryv1\xa2\x02\x03\x41\x43X\xaa\x02\rAaas.Carry.V1\xca\x02\rAaas\\Carry\\V1\xe2\x02\x19\x41\x61\x61s\\Carry\\V1\\GPBMetadata\xea\x02\x0f\x41\x61\x61s::Carry::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x19\x61\x61\x61s/carry/v1/carry.proto\x12\raaas.carry.v1\"_\n\x10PropagateRequest\x12\x16\n\x06\x64igits\x18\x01 \x03(\rR\x06\x64igits\x12\x1a\n\x08position\x18\x02 \x01(\rR\x08position\x12\x17\n\x07task_id\x18\x03 \x01(\tR\x06taskId\"+\n\x11PropagateResponse\x12\x16\n\x06\x64igits\x18\x01 \x03(\rR\x06\x64igits2^\n\x0c\x43\x61rryService\x12N\n\tPropagate\x12\x1f.aaas.carry.v1.PropagateRequest\x1a .aaas.carry.v1.PropagateResponseB\xcd\x01\n\x11\x63om.aaas.carry.v1B\nCarryProtoP\x01ZVgithub.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/carry/v1;carryv1\xa2\x02\x03\x41\x43X\xaa\x02\rAaas.Carry.V1\xca\x02\rAaas\\Carry\\V1\xe2\x02\x19\x41\x61\x61s\\Carry\\V1\\GPBMetadata\xea\x02\x0f\x41\x61\x61s::Carry::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\021com.aaas.carry.v1B\nCarryProtoP\001ZVgithub.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/carry/v1;carryv1\242\002\003ACX\252\002\rAaas.Carry.V1\312\002\rAaas\\Carry\\V1\342\002\031Aaas\\Carry\\V1\\GPBMetadata\352\002\017Aaas::Carry::V1'
   _globals['_PROPAGATEREQUEST']._serialized_start=44
-  _globals['_PROPAGATEREQUEST']._serialized_end=114
-  _globals['_PROPAGATERESPONSE']._serialized_start=116
-  _globals['_PROPAGATERESPONSE']._serialized_end=159
-  _globals['_CARRYSERVICE']._serialized_start=161
-  _globals['_CARRYSERVICE']._serialized_end=255
+  _globals['_PROPAGATEREQUEST']._serialized_end=139
+  _globals['_PROPAGATERESPONSE']._serialized_start=141
+  _globals['_PROPAGATERESPONSE']._serialized_end=184
+  _globals['_CARRYSERVICE']._serialized_start=186
+  _globals['_CARRYSERVICE']._serialized_end=280
 # @@protoc_insertion_point(module_scope)

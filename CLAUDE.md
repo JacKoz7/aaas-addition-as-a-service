@@ -250,8 +250,8 @@ Pliki `.proto` w `contracts/proto/aaas/<serwis>/v1/`. Generowanie przez `buf gen
 | `commutator` | `Normalize({a,b}) → {a,b,swapped}` |
 | `operator-registry` | `Resolve({operator}) → {saga, enabled}` |
 | `idempotency` | `Claim({key, taskId}) → {taskId, existing}`, `MarkFailed({key})` |
-| `successor` | `Next({n}) → {n}` |
-| `carry` | `Propagate({digits, position}) → {digits}` |
+| `successor` | `Next({n, taskId}) → {n}` |
+| `carry` | `Propagate({digits, position, taskId}) → {digits}` |
 | `consensus` | `Vote({taskId, a, b, candidate}) → {accepted, result, votes}` |
 
 Pakiet każdego serwisu to `aaas.<serwis>.v1`; nazwa pakietu protobuf nie może zawierać myślnika, więc `operator-registry` ma pakiet i katalog `aaas/operator_registry/v1/` (ADR-0020). Wygenerowany kod (9 języków) jest commitowany w `contracts/gen/<język>/` przez `make proto`; `make proto-check` pilnuje, że jest aktualny, a `make proto-lint` (część `make lint`) robi `buf format`, `buf lint` i `buf breaking` (ADR-0020).

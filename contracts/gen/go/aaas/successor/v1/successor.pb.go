@@ -33,11 +33,18 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-// NextRequest carries the number whose successor is requested.
+// NextRequest carries the number whose successor is requested and the task
+// the call belongs to.
 type NextRequest struct {
 	state protoimpl.MessageState `protogen:"open.v1"`
 	// Natural number in 0..199 997.
-	N             uint32 `protobuf:"varint,1,opt,name=n,proto3" json:"n,omitempty"`
+	N uint32 `protobuf:"varint,1,opt,name=n,proto3" json:"n,omitempty"`
+	// Task identifier (UUIDv7, canonical text form). An addition asks for the
+	// successor of each value from a to a + b - 1 exactly once, so
+	// (task_id, n) identifies a call: a retried call is answered from the
+	// call log without a second log entry or event (ADR-0016). A missing or
+	// malformed task_id yields the gRPC status INVALID_ARGUMENT.
+	TaskId        string `protobuf:"bytes,2,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -77,6 +84,13 @@ func (x *NextRequest) GetN() uint32 {
 		return x.N
 	}
 	return 0
+}
+
+func (x *NextRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 // NextResponse carries the successor.
@@ -129,9 +143,10 @@ var File_aaas_successor_v1_successor_proto protoreflect.FileDescriptor
 
 const file_aaas_successor_v1_successor_proto_rawDesc = "" +
 	"\n" +
-	"!aaas/successor/v1/successor.proto\x12\x11aaas.successor.v1\"\x1b\n" +
+	"!aaas/successor/v1/successor.proto\x12\x11aaas.successor.v1\"4\n" +
 	"\vNextRequest\x12\f\n" +
-	"\x01n\x18\x01 \x01(\rR\x01n\"\x1c\n" +
+	"\x01n\x18\x01 \x01(\rR\x01n\x12\x17\n" +
+	"\atask_id\x18\x02 \x01(\tR\x06taskId\"\x1c\n" +
 	"\fNextResponse\x12\f\n" +
 	"\x01n\x18\x01 \x01(\rR\x01n2[\n" +
 	"\x10SuccessorService\x12G\n" +

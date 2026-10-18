@@ -25,8 +25,8 @@ them, guards them against breaking changes and generates their code.
 | [`aaas.commutator.v1`](aaas/commutator/v1/commutator.proto) | `CommutatorService` | `Normalize(a, b) → (a, b, swapped)` | `commutator` (Zig, P2.15) | `parser` |
 | [`aaas.operator_registry.v1`](aaas/operator_registry/v1/operator_registry.proto) | `OperatorRegistryService` | `Resolve(operator) → (saga, enabled)` | `operator-registry` (Crystal, P2.16) | `parser` |
 | [`aaas.idempotency.v1`](aaas/idempotency/v1/idempotency.proto) | `IdempotencyService` | `Claim(key, task_id) → (task_id, existing)`, `MarkFailed(key)` | `idempotency` (Deno, P6.3) | `expression-assembler`, `saga-orchestrator` |
-| [`aaas.successor.v1`](aaas/successor/v1/successor.proto) | `SuccessorService` | `Next(n) → (n)` | `successor` (Haskell, P2.13) | `saga-orchestrator` |
-| [`aaas.carry.v1`](aaas/carry/v1/carry.proto) | `CarryService` | `Propagate(digits, position) → (digits)` | `carry` (Elixir, P2.13) | `successor` |
+| [`aaas.successor.v1`](aaas/successor/v1/successor.proto) | `SuccessorService` | `Next(n, task_id) → (n)` | `successor` (Haskell, P2.13) | `saga-orchestrator` |
+| [`aaas.carry.v1`](aaas/carry/v1/carry.proto) | `CarryService` | `Propagate(digits, position, task_id) → (digits)` | `carry` (Elixir, P2.13) | `successor` |
 | [`aaas.consensus.v1`](aaas/consensus/v1/consensus.proto) | `ConsensusService` | `Vote(task_id, a, b, candidate) → (accepted, result, votes)` | `consensus` (Go, P4.1) | `saga-orchestrator` |
 
 The contracts exist before their servers: each service step implements the

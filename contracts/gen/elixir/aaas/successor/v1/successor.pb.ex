@@ -7,6 +7,7 @@ defmodule Aaas.Successor.V1.NextRequest do
     syntax: :proto3
 
   field :n, 1, type: :uint32
+  field :task_id, 2, type: :string, json_name: "taskId"
 end
 
 defmodule Aaas.Successor.V1.NextResponse do

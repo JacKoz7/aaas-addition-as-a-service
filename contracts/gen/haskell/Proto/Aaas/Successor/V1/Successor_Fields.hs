@@ -32,3 +32,8 @@ n ::
   (Prelude.Functor f, Data.ProtoLens.Field.HasField s "n" a) =>
   Lens.Family2.LensLike' f s a
 n = Data.ProtoLens.Field.field @"n"
+taskId ::
+  forall f s a.
+  (Prelude.Functor f, Data.ProtoLens.Field.HasField s "taskId" a) =>
+  Lens.Family2.LensLike' f s a
+taskId = Data.ProtoLens.Field.field @"taskId"

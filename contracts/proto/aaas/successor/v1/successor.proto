@@ -26,10 +26,17 @@ service SuccessorService {
   rpc Next(NextRequest) returns (NextResponse);
 }
 
-// NextRequest carries the number whose successor is requested.
+// NextRequest carries the number whose successor is requested and the task
+// the call belongs to.
 message NextRequest {
   // Natural number in 0..199 997.
   uint32 n = 1;
+  // Task identifier (UUIDv7, canonical text form). An addition asks for the
+  // successor of each value from a to a + b - 1 exactly once, so
+  // (task_id, n) identifies a call: a retried call is answered from the
+  // call log without a second log entry or event (ADR-0016). A missing or
+  // malformed task_id yields the gRPC status INVALID_ARGUMENT.
+  string task_id = 2;
 }
 
 // NextResponse carries the successor.

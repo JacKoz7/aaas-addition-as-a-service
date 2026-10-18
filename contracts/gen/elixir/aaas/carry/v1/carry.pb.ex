@@ -8,6 +8,7 @@ defmodule Aaas.Carry.V1.PropagateRequest do
 
   field :digits, 1, repeated: true, type: :uint32
   field :position, 2, type: :uint32
+  field :task_id, 3, type: :string, json_name: "taskId"
 end
 
 defmodule Aaas.Carry.V1.PropagateResponse do

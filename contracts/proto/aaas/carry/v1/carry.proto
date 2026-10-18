@@ -38,6 +38,10 @@ message PropagateRequest {
   // Index of the digit that receives the carry, in 0..len(digits). When it
   // equals len(digits), a new most significant digit 1 is appended.
   uint32 position = 2;
+  // Task identifier (UUIDv7, canonical text form) of the addition, carried
+  // into the event aaas.carry.propagated.v1. A missing or malformed task_id
+  // yields the gRPC status INVALID_ARGUMENT.
+  string task_id = 3;
 }
 
 // PropagateResponse carries the number after the carry was applied.

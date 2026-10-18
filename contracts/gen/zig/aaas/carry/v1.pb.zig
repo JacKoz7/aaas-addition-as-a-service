@@ -4,16 +4,19 @@ const std = @import("std");
 
 const protobuf = @import("protobuf");
 const fd = protobuf.fd;
+const fdf = protobuf.fdf;
 
 /// PropagateRequest carries a number as decimal digits and the position that
 /// receives the carry.
 pub const PropagateRequest = struct {
     digits: std.ArrayList(u32) = .empty,
     position: u32 = 0,
+    task_id: []const u8 = &.{},
 
     pub const _desc_table = .{
         .digits = fd(1, .{ .packed_repeated = .{ .scalar = .uint32 }}),
         .position = fd(2, .{ .scalar = .uint32 }),
+        .task_id = fdf(3, .{ .scalar = .string }, .{ .utf8_validation = .verify }),
     };
 
     /// Encodes the message to the writer

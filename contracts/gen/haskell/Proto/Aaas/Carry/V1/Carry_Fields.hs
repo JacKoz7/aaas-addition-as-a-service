@@ -38,6 +38,11 @@ position ::
    Data.ProtoLens.Field.HasField s "position" a) =>
   Lens.Family2.LensLike' f s a
 position = Data.ProtoLens.Field.field @"position"
+taskId ::
+  forall f s a.
+  (Prelude.Functor f, Data.ProtoLens.Field.HasField s "taskId" a) =>
+  Lens.Family2.LensLike' f s a
+taskId = Data.ProtoLens.Field.field @"taskId"
 vec'digits ::
   forall f s a.
   (Prelude.Functor f,

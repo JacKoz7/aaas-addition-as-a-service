@@ -42,7 +42,11 @@ type PropagateRequest struct {
 	Digits []uint32 `protobuf:"varint,1,rep,packed,name=digits,proto3" json:"digits,omitempty"`
 	// Index of the digit that receives the carry, in 0..len(digits). When it
 	// equals len(digits), a new most significant digit 1 is appended.
-	Position      uint32 `protobuf:"varint,2,opt,name=position,proto3" json:"position,omitempty"`
+	Position uint32 `protobuf:"varint,2,opt,name=position,proto3" json:"position,omitempty"`
+	// Task identifier (UUIDv7, canonical text form) of the addition, carried
+	// into the event aaas.carry.propagated.v1. A missing or malformed task_id
+	// yields the gRPC status INVALID_ARGUMENT.
+	TaskId        string `protobuf:"bytes,3,opt,name=task_id,json=taskId,proto3" json:"task_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -89,6 +93,13 @@ func (x *PropagateRequest) GetPosition() uint32 {
 		return x.Position
 	}
 	return 0
+}
+
+func (x *PropagateRequest) GetTaskId() string {
+	if x != nil {
+		return x.TaskId
+	}
+	return ""
 }
 
 // PropagateResponse carries the number after the carry was applied.
@@ -142,10 +153,11 @@ var File_aaas_carry_v1_carry_proto protoreflect.FileDescriptor
 
 const file_aaas_carry_v1_carry_proto_rawDesc = "" +
 	"\n" +
-	"\x19aaas/carry/v1/carry.proto\x12\raaas.carry.v1\"F\n" +
+	"\x19aaas/carry/v1/carry.proto\x12\raaas.carry.v1\"_\n" +
 	"\x10PropagateRequest\x12\x16\n" +
 	"\x06digits\x18\x01 \x03(\rR\x06digits\x12\x1a\n" +
-	"\bposition\x18\x02 \x01(\rR\bposition\"+\n" +
+	"\bposition\x18\x02 \x01(\rR\bposition\x12\x17\n" +
+	"\atask_id\x18\x03 \x01(\tR\x06taskId\"+\n" +
 	"\x11PropagateResponse\x12\x16\n" +
 	"\x06digits\x18\x01 \x03(\rR\x06digits2^\n" +
 	"\fCarryService\x12N\n" +

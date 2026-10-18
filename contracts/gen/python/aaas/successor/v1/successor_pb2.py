@@ -24,7 +24,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!aaas/successor/v1/successor.proto\x12\x11\x61\x61\x61s.successor.v1\"\x1b\n\x0bNextRequest\x12\x0c\n\x01n\x18\x01 \x01(\rR\x01n\"\x1c\n\x0cNextResponse\x12\x0c\n\x01n\x18\x01 \x01(\rR\x01n2[\n\x10SuccessorService\x12G\n\x04Next\x12\x1e.aaas.successor.v1.NextRequest\x1a\x1f.aaas.successor.v1.NextResponseB\xed\x01\n\x15\x63om.aaas.successor.v1B\x0eSuccessorProtoP\x01Z^github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/successor/v1;successorv1\xa2\x02\x03\x41SX\xaa\x02\x11\x41\x61\x61s.Successor.V1\xca\x02\x11\x41\x61\x61s\\Successor\\V1\xe2\x02\x1d\x41\x61\x61s\\Successor\\V1\\GPBMetadata\xea\x02\x13\x41\x61\x61s::Successor::V1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n!aaas/successor/v1/successor.proto\x12\x11\x61\x61\x61s.successor.v1\"4\n\x0bNextRequest\x12\x0c\n\x01n\x18\x01 \x01(\rR\x01n\x12\x17\n\x07task_id\x18\x02 \x01(\tR\x06taskId\"\x1c\n\x0cNextResponse\x12\x0c\n\x01n\x18\x01 \x01(\rR\x01n2[\n\x10SuccessorService\x12G\n\x04Next\x12\x1e.aaas.successor.v1.NextRequest\x1a\x1f.aaas.successor.v1.NextResponseB\xed\x01\n\x15\x63om.aaas.successor.v1B\x0eSuccessorProtoP\x01Z^github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/successor/v1;successorv1\xa2\x02\x03\x41SX\xaa\x02\x11\x41\x61\x61s.Successor.V1\xca\x02\x11\x41\x61\x61s\\Successor\\V1\xe2\x02\x1d\x41\x61\x61s\\Successor\\V1\\GPBMetadata\xea\x02\x13\x41\x61\x61s::Successor::V1b\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -33,9 +33,9 @@ if not _descriptor._USE_C_DESCRIPTORS:
   _globals['DESCRIPTOR']._loaded_options = None
   _globals['DESCRIPTOR']._serialized_options = b'\n\025com.aaas.successor.v1B\016SuccessorProtoP\001Z^github.com/JacKoz7/AaaS---Addition-as-a-Service/contracts/gen/go/aaas/successor/v1;successorv1\242\002\003ASX\252\002\021Aaas.Successor.V1\312\002\021Aaas\\Successor\\V1\342\002\035Aaas\\Successor\\V1\\GPBMetadata\352\002\023Aaas::Successor::V1'
   _globals['_NEXTREQUEST']._serialized_start=56
-  _globals['_NEXTREQUEST']._serialized_end=83
-  _globals['_NEXTRESPONSE']._serialized_start=85
-  _globals['_NEXTRESPONSE']._serialized_end=113
-  _globals['_SUCCESSORSERVICE']._serialized_start=115
-  _globals['_SUCCESSORSERVICE']._serialized_end=206
+  _globals['_NEXTREQUEST']._serialized_end=108
+  _globals['_NEXTRESPONSE']._serialized_start=110
+  _globals['_NEXTRESPONSE']._serialized_end=138
+  _globals['_SUCCESSORSERVICE']._serialized_start=140
+  _globals['_SUCCESSORSERVICE']._serialized_end=231
 # @@protoc_insertion_point(module_scope)
