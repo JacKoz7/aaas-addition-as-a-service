@@ -1,8 +1,9 @@
 <!-- GENERATED FILE: produced from the contracts in contracts/ by the
-     steps that introduce each contract type (events P1.3, proto P2.1,
-     OpenAPI P2.2; ADR-0010). Until then it is kept in sync by hand with the
-     contracts; do not add content that is not in a contract. The native API
-     documentation is published in the portal by `make docs`. -->
+     steps that introduce each contract type (events P1.3, OpenAPI P2.2;
+     ADR-0010). Until then it is kept in sync by hand with the contracts;
+     do not add content that is not in a contract. The ledger serves no
+     gRPC contract (ADR-0020). The native API documentation is published in
+     the portal by `make docs`. -->
 # API Reference — `ledger`
 
 | Field | Value |

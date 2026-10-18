@@ -1,7 +1,8 @@
 <!-- GENERATED FILE: the events section is generated from contracts/events
      by `make api-md` (scripts/service-api.py) and checked by
      `make contracts-check`; the HTTP and gRPC sections are generated once
-     their contracts exist (proto P2.1, OpenAPI P2.2) and are kept in sync by
+     their contracts exist (OpenAPI P2.2; the gRPC section from contracts/proto,
+     ADR-0020, for services that serve a contract) and are kept in sync by
      hand with CLAUDE.md 4.1 until then. Do not add content that is not in a
      contract. The native API documentation is published by `make docs`. -->
 # API Reference — `gateway`
