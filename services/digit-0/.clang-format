@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-0
+# Module:          .clang-format
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Formatting rules of the C sources (clang-format 20),
+#                  checked by the lint stage and applied by `make fmt`.
+# Related Docs:    services/digit-0/Dockerfile, ADR-0022
+BasedOnStyle: LLVM
+ColumnLimit: 120
+IndentWidth: 2

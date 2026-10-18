@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-0
+# Module:          .clang-tidy
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Static analysis rules of the C sources (clang-tidy 20),
+#                  run by the lint stage; every finding is an error.
+# Related Docs:    services/digit-0/Dockerfile, ADR-0022
+#
+# Disabled checks and why:
+#   clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling:
+#     flags every snprintf/memcpy/memset; all writes here are bounded by
+#     the destination size, which the check cannot see.
+#   bugprone-easily-swappable-parameters: the HTTP handler signature is
+#     fixed by libmicrohttpd.
+Checks: >-
+  clang-diagnostic-*,
+  clang-analyzer-*,
+  bugprone-*,
+  cert-*,
+  misc-*,
+  performance-*,
+  portability-*,
+  -clang-analyzer-security.insecureAPI.DeprecatedOrUnsafeBufferHandling,
+  -bugprone-easily-swappable-parameters,
+  -misc-include-cleaner
+WarningsAsErrors: "*"

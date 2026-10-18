@@ -1,0 +1,34 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-0
+# Module:          Doxyfile
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Doxygen configuration: the native API documentation and
+#                  the 100% documentation coverage check (CLAUDE.md 6.5.4).
+#                  Every undocumented file, function, type, member, macro or
+#                  static definition is a warning, and any warning fails.
+# Related Docs:    services/digit-0/Dockerfile (stages doc-coverage,
+#                  api-docs), ADR-0022
+PROJECT_NAME           = "digit-0"
+PROJECT_NUMBER         = 0.1.0
+PROJECT_BRIEF          = "AaaS digit 0: value and successor from SQLite"
+INPUT                  = src tests
+FILE_PATTERNS          = *.c *.h
+RECURSIVE              = NO
+OPTIMIZE_OUTPUT_FOR_C  = YES
+EXTRACT_ALL            = NO
+EXTRACT_PRIVATE        = YES
+EXTRACT_STATIC         = YES
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_IF_INCOMPLETE_DOC = YES
+WARN_AS_ERROR          = FAIL_ON_WARNINGS
+QUIET                  = YES
+GENERATE_LATEX         = NO
+GENERATE_HTML          = YES
+OUTPUT_DIRECTORY       = /tmp/doxygen
+HTML_OUTPUT            = html
+SOURCE_BROWSER         = YES
