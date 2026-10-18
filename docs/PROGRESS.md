@@ -12,11 +12,11 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Field | Value |
 | --- | --- |
 | Current phase | Phase 2 — Digits, carries, parsing (M2) |
-| Last completed step | P2.4 — `digit-1` (C++) |
-| Last completed at | 2026-10-18 13:58 CEST |
-| Snapshot tag | step/P2.4 |
-| Step in progress | P2.5 — `digit-2` (Fortran; HTTP wrapper allowed, ADR) |
-| Next step | P2.5 — `digit-2` (Fortran; HTTP wrapper allowed, ADR) |
+| Last completed step | P2.5 — `digit-2` (Fortran; HTTP wrapper allowed, ADR) |
+| Last completed at | 2026-10-18 14:38 CEST |
+| Snapshot tag | step/P2.5 |
+| Step in progress | none |
+| Next step | P2.6 — `digit-3` (Free Pascal) |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
 
@@ -59,7 +59,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.2 | Digit contract `contracts/http/digit.yaml` + shared contract test for all digits (`tests/contract/digit.sh`) | DONE | 2026-10-18 | step/P2.2 | [log](progress/steps/P2.2.md) |
 | P2.3 | `digit-0` (C, SQLite) as the reference implementation | DONE | 2026-10-18 | step/P2.3 | [log](progress/steps/P2.3.md) |
 | P2.4 | `digit-1` (C++) | DONE | 2026-10-18 | step/P2.4 | [log](progress/steps/P2.4.md) |
-| P2.5 | `digit-2` (Fortran; HTTP wrapper allowed, ADR) | IN_PROGRESS | | | [log](progress/steps/P2.5.md) |
+| P2.5 | `digit-2` (Fortran; HTTP wrapper allowed, ADR) | DONE | 2026-10-18 | step/P2.5 | [log](progress/steps/P2.5.md) |
 | P2.6 | `digit-3` (Free Pascal) | TODO | | | |
 | P2.7 | `digit-4` (Lua) | TODO | | | |
 | P2.8 | `digit-5` (Dart) | TODO | | | |
