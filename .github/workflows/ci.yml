@@ -15,7 +15,7 @@
 #                  job per services/<name> or frontend/<name> directory.
 # Related Docs:    CLAUDE.md (sections 6.3, 6.4, 6.5.7, 7.1, 9.1), ADR-0006,
 #                  ADR-0005, ADR-0009, ADR-0010, ADR-0011,
-#                  ADR-0013, ADR-0020, scripts/ci/changed-components.sh
+#                  ADR-0013, ADR-0020, ADR-0021, scripts/ci/changed-components.sh
 #
 # Third-party actions are pinned to full commit SHAs; the tag they correspond
 # to is given in the trailing comment. Update them deliberately, never to a
@@ -96,16 +96,22 @@ jobs:
 
   # -------------------------------------------------------------------------
   # Contract tests: every event schema is valid and follows ADR-0013, every
-  # valid example passes and every invalid example fails where it should.
+  # valid example passes and every invalid example fails where it should;
+  # the OpenAPI contracts lint cleanly, and the digit contract test passes
+  # conforming test doubles and fails faulty ones (ADR-0021).
   # -------------------------------------------------------------------------
   contracts:
-    name: contracts (event schemas)
+    name: contracts (events, OpenAPI, digit contract test)
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
       - name: Validate the event schemas and examples (make contracts-check)
         run: make contracts-check
+      - name: Lint the OpenAPI contracts (make openapi-lint)
+        run: make openapi-lint
+      - name: Self-test of the digit contract test (make contract-selftest)
+        run: make contract-selftest
 
   # -------------------------------------------------------------------------
   # gRPC contracts (ADR-0020): buf format, lint and breaking on every run;
