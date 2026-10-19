@@ -1,0 +1,19 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       digit-6
+// Module:          src/CSQLite/module.modulemap
+// Owning Team:     Arithmetic Excellence Center (AEC)
+// Classification:  INTERNAL
+// Purpose:         Module map of the CSQLite system library target: links the
+//                  SQLite library of the system and imports its C API into
+//                  Swift.
+// Related Docs:    services/digit-6/docs/SERVICE_CHARTER.md
+
+// CSQLite: the C API of SQLite (shim.h includes sqlite3.h), linked with
+// -lsqlite3. Owner: Arithmetic Excellence Center (AEC). Since: digit-6 0.1.0.
+module CSQLite [system] {
+  header "shim.h"
+  link "sqlite3"
+  export *
+}

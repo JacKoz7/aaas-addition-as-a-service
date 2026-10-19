@@ -1,0 +1,15 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-6
+# Module:          .gitignore
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Git ignore rules of the digit-6 service: the build and
+#                  package caches of SwiftPM.
+# Related Docs:    services/digit-6/docs/SERVICE_CHARTER.md
+
+# Build products and resolved package checkouts of SwiftPM.
+.build/
+# SwiftPM and editor settings created by local tools.
+.swiftpm/
