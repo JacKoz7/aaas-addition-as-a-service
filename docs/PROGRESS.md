@@ -15,7 +15,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Last completed step | P2.8 — `digit-5` (Dart) |
 | Last completed at | 2026-10-19 09:38 CEST |
 | Snapshot tag | step/P2.8 |
-| Step in progress | none |
+| Step in progress | P2.9 — `digit-6` (Swift) |
 | Next step | P2.9 — `digit-6` (Swift) |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
@@ -63,7 +63,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.6 | `digit-3` (Free Pascal) | DONE | 2026-10-18 | step/P2.6 | [log](progress/steps/P2.6.md) |
 | P2.7 | `digit-4` (Lua) | DONE | 2026-10-18 | step/P2.7 | [log](progress/steps/P2.7.md) |
 | P2.8 | `digit-5` (Dart) | DONE | 2026-10-19 | step/P2.8 | [log](progress/steps/P2.8.md) |
-| P2.9 | `digit-6` (Swift) | TODO | | | |
+| P2.9 | `digit-6` (Swift) | IN_PROGRESS | | | |
 | P2.10 | `digit-7` (Gleam) | TODO | | | |
 | P2.11 | `digit-8` (D) | TODO | | | |
 | P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | TODO | | | |
