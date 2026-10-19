@@ -30,7 +30,8 @@ fortran|.f90,.f95,.f03,.f08||! ||80|
 pascal|.pas,.pp,.lpr||// ||80|
 lua|.lua,.busted,.luacheckrc,config.ld||-- ||80|
 dart|.dart||// ||80|
-swift|.swift||// ||80|
+swiftpm|Package.swift||// ||80|// swift-tools-version:6.0
+swift|.swift,module.modulemap||// ||80|
 gleam|.gleam||// ||80|
 d|.d||// ||80|
 racket|.rkt||;; ||80|#lang racket/base
