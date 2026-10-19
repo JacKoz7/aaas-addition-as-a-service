@@ -1,0 +1,35 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-5
+# Module:          pubspec.yaml
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Package manifest of the digit-5 service: Dart SDK constraint
+#                  and the exact versions of every dependency (resolved in
+#                  pubspec.lock).
+# Related Docs:    services/digit-5/docs/SERVICE_CHARTER.md
+
+name: digit_service
+description: AaaS digit-5 service, the authoritative source for the value and successor of digit 5.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  sqlite3: 3.7.0
+
+dev_dependencies:
+  analyzer: 14.4.0
+  lints: 6.1.0
+  test: 1.32.0
+
+# The sqlite3 package loads the SQLite library of the operating system
+# (dlopen of libsqlite3.so) instead of downloading a prebuilt binary from
+# GitHub during the build (ADR-0027).
+hooks:
+  user_defines:
+    sqlite3:
+      source: system

@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-5
+# Module:          analysis_options.yaml
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Static analysis settings of the digit-5 service: the
+#                  recommended lints, strict type checks and the documentation
+#                  lint (dart analyze --fatal-infos).
+# Related Docs:    services/digit-5/docs/SERVICE_CHARTER.md
+
+include: package:lints/recommended.yaml
+
+analyzer:
+  language:
+    strict-casts: true
+    strict-inference: true
+    strict-raw-types: true
+
+linter:
+  rules:
+    - public_member_api_docs
+    - always_declare_return_types
+    - prefer_final_locals
+    - unawaited_futures

@@ -1,0 +1,18 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-5
+# Module:          .gitignore
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Git ignore rules of the digit-5 service, refining the
+#                  repository rules for the Dart package layout.
+# Related Docs:    services/digit-5/docs/SERVICE_CHARTER.md
+
+# bin/ holds the Dart entry point (the package layout dart build expects),
+# not build output as in the repository rule.
+!bin/
+# Package resolution and build cache of the Dart tools.
+.dart_tool/
+# dartdoc output of a local `dart doc`.
+doc/api/
