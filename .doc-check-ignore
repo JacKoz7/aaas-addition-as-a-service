@@ -33,3 +33,8 @@ templates/headers/header.txt
 # Code generated from contracts/proto by `make proto`; its documentation is
 # the comments of the .proto files, which the generators copy (ADR-0020).
 contracts/gen/*
+
+# Dart lock files are generated and rewritten by `dart pub get`, which drops
+# any comment; the package versions they pin are documented in the
+# service's DEPENDENCIES.md (ADR-0027).
+*/pubspec.lock
