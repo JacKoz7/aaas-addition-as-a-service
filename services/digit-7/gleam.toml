@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       digit-7
+# Module:          gleam.toml
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Gleam package manifest of the digit-7 service: package
+#                  name, Erlang target and the Hex dependencies, which
+#                  manifest.toml locks to exact versions and checksums.
+# Related Docs:    services/digit-7/docs/DEPENDENCIES.md, ADR-0029
+
+name = "digit7"
+version = "0.1.0"
+description = "AaaS digit-7 service: the value and successor of digit 7."
+licences = ["MIT"]
+gleam = ">= 1.19.0"
+target = "erlang"
+
+[dependencies]
+gleam_stdlib = ">= 1.0.0 and < 2.0.0"
+gleam_erlang = ">= 1.3.0 and < 2.0.0"
+gleam_otp = ">= 1.3.0 and < 2.0.0"
+sqlight = ">= 1.2.0 and < 2.0.0"
+envoy = ">= 1.2.0 and < 2.0.0"
+
+[dev-dependencies]
+gleeunit = ">= 1.11.0 and < 2.0.0"
+glance = ">= 7.0.0 and < 8.0.0"
