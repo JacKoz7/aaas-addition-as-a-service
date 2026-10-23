@@ -19,8 +19,8 @@ own SQLite database, through the contract shared by all ten digit services
 (`contracts/http/digit.yaml`). It does nothing else.
 
 It follows the reference behaviour of `digit-0` (ADR-0022), implemented in
-Swift with the HTTP server of SwiftNIO (ADR-0028): the
-same answers, metrics, logs and error format.
+Swift with its own HTTP/1.1 server on POSIX sockets and no package
+dependencies (ADR-0028): the same answers, metrics, logs and error format.
 
 ## 2. Business Value
 
