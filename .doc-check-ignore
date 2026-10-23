@@ -38,3 +38,8 @@ contracts/gen/*
 # any comment; the package versions they pin are documented in the
 # service's DEPENDENCIES.md (ADR-0027).
 */pubspec.lock
+
+# Gleam lock files are generated and rewritten by `gleam`, which drops any
+# comment; the package versions they pin are documented in the service's
+# DEPENDENCIES.md (ADR-0029).
+*/manifest.toml

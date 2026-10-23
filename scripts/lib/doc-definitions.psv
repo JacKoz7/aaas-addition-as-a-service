@@ -51,3 +51,10 @@ pascal|^[up][nr][io][tg][a-z]*[[:space:]]+[A-Za-z]|[}][[:space:]]*$||
 # depth, constant, table and module field, and requires the `---` form
 # (ADR-0026).
 lua|^(local[[:space:]]+)?function[[:space:]]+[A-Za-z_]|^[[:space:]]*--||
+# gleam: a top-level `fn`, `const` or `type`, public or not (f+n, c+o or
+# t+y as the first two letters; an alternation cannot be written without
+# `|`), preceded by a `///` comment; attributes such as `@external` may
+# stand between them. dev/doc_coverage.gleam of each Gleam service checks
+# every definition and constructor with the glance parser, and the module
+# comment (ADR-0029).
+gleam|^(pub[[:space:]]+)?[fct][noy][a-z]*[[:space:]]+[A-Za-z_]|^[[:space:]]*///|^@|

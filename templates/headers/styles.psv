@@ -32,7 +32,10 @@ lua|.lua,.busted,.luacheckrc,config.ld||-- ||80|
 dart|.dart||// ||80|
 swiftpm|Package.swift||// ||80|// swift-tools-version:6.0
 swift|.swift,module.modulemap||// ||80|
-gleam|.gleam||// ||80|
+# gleam: `gleam format` moves module comments (`////`) above every other
+# line, so the header is written as a module comment and opens the module's
+# documentation (ADR-0029).
+gleam|.gleam||//// ||80|
 d|.d||// ||80|
 racket|.rkt||;; ||80|#lang racket/base
 haskell|.hs,cabal.project,cabal.project.freeze||-- ||80|
