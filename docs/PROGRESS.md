@@ -15,7 +15,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Last completed step | P2.10 — `digit-7` (Gleam) |
 | Last completed at | 2026-10-23 19:35 CEST |
 | Snapshot tag | step/P2.10 |
-| Step in progress | none |
+| Step in progress | P2.11 — `digit-8` (D) |
 | Next step | P2.11 — `digit-8` (D) |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
@@ -65,7 +65,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.8 | `digit-5` (Dart) | DONE | 2026-10-19 | step/P2.8 | [log](progress/steps/P2.8.md) |
 | P2.9 | `digit-6` (Swift) | DONE | 2026-10-19 | step/P2.9 | [log](progress/steps/P2.9.md) |
 | P2.10 | `digit-7` (Gleam) | DONE | 2026-10-23 | step/P2.10 | [log](progress/steps/P2.10.md) |
-| P2.11 | `digit-8` (D) | TODO | | | |
+| P2.11 | `digit-8` (D) | IN_PROGRESS | | | [log](progress/steps/P2.11.md) |
 | P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | TODO | | | |
 | P2.13 | `carry` (Elixir, Mnesia) + `successor` computes n+1 through digit services and carry, serves gRPC `Next` on 9090 (ADR-0020); remove `TEMPORARY(P2.13)` | TODO | | | |
 | P2.14 | `validator` (Rust, MariaDB): range 0–99 999 | TODO | | | |
