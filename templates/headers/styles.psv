@@ -37,6 +37,7 @@ swift|.swift,module.modulemap||// ||80|
 # documentation (ADR-0029).
 gleam|.gleam||//// ||80|
 d|.d||// ||80|
+sdl|.sdl||// ||80|
 racket|.rkt||;; ||80|#lang racket/base
 haskell|.hs,cabal.project,cabal.project.freeze||-- ||80|
 cabal|.cabal||-- ||80|cabal-version: 3.0

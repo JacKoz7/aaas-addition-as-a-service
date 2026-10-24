@@ -1,0 +1,48 @@
+// SPDX-License-Identifier: MIT
+// Copyright (c) 2026 AaaS Contributors
+//
+// Component:       digit-8
+// Module:          dub.sdl
+// Owning Team:     Arithmetic Excellence Center (AEC)
+// Classification:  INTERNAL
+// Purpose:         dub package recipe of the digit-8 service: the
+//                  executable, its unit-test build and the documentation
+//                  coverage tool. No package dependencies; SQLite is the
+//                  system library behind Phobos's etc.c.sqlite3 binding.
+// Related Docs:    services/digit-8/README.md, ADR-0030
+
+name "digit8"
+description "AaaS digit-8 service: authoritative source for the value and successor of digit 8."
+license "MIT"
+copyright "Copyright (c) 2026 AaaS Contributors"
+authors "AaaS Contributors"
+targetPath "build"
+sourcePaths "src"
+importPaths "src"
+libs "sqlite3"
+dflags "-preview=dip1000" "-preview=in"
+// dub fails a build on compiler warnings by default (-w); deprecations
+// fail it too. The lint stage relies on both.
+buildRequirements "disallowDeprecations"
+
+// The image build: optimised and linked statically against musl, druntime,
+// Phobos and SQLite, so the runtime image needs no shared library. Bounds
+// checks and assertions stay on (no releaseMode).
+buildType "production" {
+	buildOptions "optimize" "inline"
+	dflags "-static"
+}
+
+configuration "application" {
+	targetType "executable"
+	targetName "digit-8"
+	mainSourceFile "src/digit8/app.d"
+}
+
+configuration "unittest" {
+	targetType "executable"
+	targetName "digit-8-test"
+	mainSourceFile "tests/digit8_tests/runner.d"
+	sourcePaths "tests"
+	importPaths "tests"
+}
