@@ -12,11 +12,11 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Field | Value |
 | --- | --- |
 | Current phase | Phase 2 — Digits, carries, parsing (M2) |
-| Last completed step | P2.11 — `digit-8` (D) |
-| Last completed at | 2026-10-24 21:15 CEST |
-| Snapshot tag | step/P2.11 |
-| Step in progress | P2.12 — `digit-9` (Racket) |
-| Next step | P2.12 — `digit-9` (Racket) |
+| Last completed step | P2.12 — `digit-9` (Racket) |
+| Last completed at | 2026-10-25 18:00 CET |
+| Snapshot tag | step/P2.12 |
+| Step in progress | none |
+| Next step | P2.13 — `carry` (Elixir, Mnesia) and `successor` through the digit services |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
 
@@ -66,7 +66,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.9 | `digit-6` (Swift) | DONE | 2026-10-19 | step/P2.9 | [log](progress/steps/P2.9.md) |
 | P2.10 | `digit-7` (Gleam) | DONE | 2026-10-23 | step/P2.10 | [log](progress/steps/P2.10.md) |
 | P2.11 | `digit-8` (D) | DONE | 2026-10-24 | step/P2.11 | [log](progress/steps/P2.11.md) |
-| P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | IN_PROGRESS | | | [log](progress/steps/P2.12.md) |
+| P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | DONE | 2026-10-25 | step/P2.12 | [log](progress/steps/P2.12.md) |
 | P2.13 | `carry` (Elixir, Mnesia) + `successor` computes n+1 through digit services and carry, serves gRPC `Next` on 9090 (ADR-0020); remove `TEMPORARY(P2.13)` | TODO | | | |
 | P2.14 | `validator` (Rust, MariaDB): range 0–99 999 | TODO | | | |
 | P2.15 | `commutator` (Zig, LMDB): a ≥ b | TODO | | | |
