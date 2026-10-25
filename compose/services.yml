@@ -663,6 +663,45 @@ services:
     # volume, owned by the image's non-root user (UID 10001).
     volumes:
       - digit-8-data:/data
+  # --- digit-9 (racket, AEC) ---------------------------------
+  digit-9:
+    build:
+      # Relative to compose/, the directory of the included file.
+      context: ../services/digit-9
+      dockerfile: Dockerfile
+      target: runtime
+    image: aaas/digit-9:dev
+    profiles: [services]
+    # `services` only: the database (SQLite) is embedded in the process, so
+    # the service needs no `data` network and no password.
+    networks: [services]
+    environment:
+      AAAS_SERVICE: digit-9
+      AAAS_ENV: ${AAAS_ENV:-local}
+      AAAS_BOOTSTRAP: ${AAAS_BOOTSTRAP:-env}
+      AAAS_DIGIT: "9"
+      AAAS_DB_PATH: /data/digit-9.db
+      AAAS_LOG_LEVEL: info
+    # Interpreted or VM language (Racket on Chez Scheme): default limit for
+    # interpreted services (CLAUDE.md 6.2). Measured usage:
+    # services/digit-9/docs/CAPACITY.md.
+    mem_limit: 128m
+    cpus: 0.5
+    # SIGTERM closes the listener and the idle connections and waits up to
+    # 5 s for running requests (src/digit9/server.rkt).
+    stop_grace_period: 10s
+    healthcheck:
+      # Exec form: busybox wget exits non-zero when /health does not answer
+      # 200.
+      test: ["CMD", "/usr/bin/wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+      start_period: 10s
+    # SQLite is embedded in the service process; its file lives in this
+    # volume, owned by the image's non-root user (UID 10001).
+    volumes:
+      - digit-9-data:/data
 # AAAS:VOLUMES
 volumes:
   expression-assembler-data: {}
@@ -678,3 +717,4 @@ volumes:
   digit-6-data: {}
   digit-7-data: {}
   digit-8-data: {}
+  digit-9-data: {}

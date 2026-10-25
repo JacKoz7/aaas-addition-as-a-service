@@ -39,6 +39,8 @@ dist/
 build/
 target/
 _build/
+# Racket: raco make writes compiled/ next to every module.
+compiled/
 bin/
 obj/
 *.o
