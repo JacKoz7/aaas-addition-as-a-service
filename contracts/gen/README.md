@@ -55,5 +55,5 @@ service of each language (ADR-0020).
   7.36.2 and `grpcio` 1.84.0, and a message round-trips through its wire
   format.
 - The other languages are compiled by the steps of their first service
-  (Haskell and Elixir in P2.13, Rust in P2.14, Zig in P2.15, Crystal in
+  (Elixir in P2.13a, Haskell in P2.13b, Rust in P2.14, Zig in P2.15, Crystal in
   P2.16, OCaml in P2.17, C# in P6.3).
