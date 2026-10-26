@@ -12,11 +12,11 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | Field | Value |
 | --- | --- |
 | Current phase | Phase 2 — Digits, carries, parsing (M2) |
-| Last completed step | P2.12 — `digit-9` (Racket) |
-| Last completed at | 2026-10-25 18:00 CET |
-| Snapshot tag | step/P2.12 |
-| Step in progress | P2.13a — `carry` (Elixir, Mnesia) |
-| Next step | P2.13a — `carry` (Elixir, Mnesia) |
+| Last completed step | P2.13a — `carry` (Elixir, Mnesia) |
+| Last completed at | 2026-10-26 10:20 CET |
+| Snapshot tag | step/P2.13a |
+| Step in progress | none |
+| Next step | P2.13b — `successor` through the digit services and `carry`, gRPC `Next` |
 | Blockers | none |
 | Milestones reached | M1 (Phase 1, 2026-10-17: [release notes](releases/phase-1.md)); Phase 0 complete ([release notes](releases/phase-0.md)) |
 
@@ -67,7 +67,7 @@ Step statuses: `TODO`, `IN_PROGRESS`, `DONE`, `BLOCKED`. At most one step may be
 | P2.10 | `digit-7` (Gleam) | DONE | 2026-10-23 | step/P2.10 | [log](progress/steps/P2.10.md) |
 | P2.11 | `digit-8` (D) | DONE | 2026-10-24 | step/P2.11 | [log](progress/steps/P2.11.md) |
 | P2.12 | `digit-9` (Racket), `next = 0`, `carry = true` | DONE | 2026-10-25 | step/P2.12 | [log](progress/steps/P2.12.md) |
-| P2.13a | `carry` (Elixir, Mnesia): gRPC `Propagate` on 9090 through the digit services, `aaas.carry.propagated.v1` (split from P2.13: two new gRPC servers do not fit one session) | IN_PROGRESS | | | [log](progress/steps/P2.13a.md) |
+| P2.13a | `carry` (Elixir, Mnesia): gRPC `Propagate` on 9090 through the digit services, `aaas.carry.propagated.v1` (split from P2.13: two new gRPC servers do not fit one session) | DONE | 2026-10-26 | step/P2.13a | [log](progress/steps/P2.13a.md) |
 | P2.13b | `successor` computes n+1 through digit services and carry, serves gRPC `Next` on 9090 (ADR-0020); remove `TEMPORARY(P2.13)` (requires P2.13a) | TODO | | | |
 | P2.14 | `validator` (Rust, MariaDB): range 0–99 999 | TODO | | | |
 | P2.15 | `commutator` (Zig, LMDB): a ≥ b | TODO | | | |
