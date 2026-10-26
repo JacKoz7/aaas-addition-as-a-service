@@ -11,6 +11,27 @@ hand with a **Business Impact** section.
 
 ## [Unreleased]
 
+## [0.2.0] — 2026-10-26
+
+### Added
+
+- Compute n+1 through the digit services and carry (`e4c6906`)
+
+### Business Impact
+
+We are proud to report that the successor has stopped adding. With version
+0.2.0 every step of every addition is entrusted to the authoritative owners
+of arithmetic: the digit service of the units digit answers the next digit,
+and whenever that digit is a 9, the carry service carries the one onwards,
+consulting each higher digit in turn. The native `+` operator, a liability
+the organisation had tolerated since phase 1, has been retired. The service
+now also speaks gRPC on port 9090, ready for the saga orchestrator of
+phase 3, while honouring its HTTP commitments to the ledger. Retried calls
+are verified anew rather than taken on trust, and the whole domain, from 0
+to 199 997, has been proven in tests to land on its successor. This rigour
+costs about one millisecond per step (3.03 ms on average, measured over
+2000 steps), a price our stakeholders consider eminently reasonable.
+
 ## [0.1.0] — 2026-10-17
 
 ### Added

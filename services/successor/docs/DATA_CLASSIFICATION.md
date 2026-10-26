@@ -6,8 +6,8 @@
 | Component | `successor` |
 | Owning Team | Arithmetic Excellence Center (AEC) |
 | Classification | INTERNAL |
-| Document Version | 1.0 |
-| Last Reviewed | 2026-10-17 |
+| Document Version | 1.1 |
+| Last Reviewed | 2026-10-26 |
 
 ## 1. Classification Levels
 
@@ -27,6 +27,7 @@ Store: CouchDB (container), volume `successor-data`.
 | Call documents (`taskId`, `n`, `result`, `eventId`, `event`, `calledAt`, `traceId`) | CouchDB `successor_calls` | INTERNAL | Unlimited (no retention job, R-014) | No |
 | Migration records | CouchDB `successor_migrations` | INTERNAL | Lifetime of the database | No |
 | Published events (`n`, `result`, identifiers, traceparent) | Redpanda `aaas.successor.called.v1` | INTERNAL | Topic retention (ADR-0011) | No |
+| Outbound requests: the units digit (implied by the service addressed, `digit-<d>`), the digits of `n`, the position and `taskId` (`carry`), the `traceparent` | Network only (`services`); `carry` stores them in its own log (its DATA_CLASSIFICATION.md) | INTERNAL | Not stored by this service | No |
 | Log fields `taskId`, `traceId`, `spanId`, `n`, results, dependency errors | stdout (container logs, Loki from P7.1) | INTERNAL | Docker log rotation; Loki retention from P7.1 | No |
 
 The service never receives a session identifier.

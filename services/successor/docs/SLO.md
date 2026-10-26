@@ -6,8 +6,8 @@
 | Component | `successor` |
 | Owning Team | Arithmetic Excellence Center (AEC) |
 | Classification | INTERNAL |
-| Document Version | 1.0 |
-| Last Reviewed | 2026-10-17 |
+| Document Version | 1.1 |
+| Last Reviewed | 2026-10-26 |
 | Measurement Window | Rolling 30 days |
 
 ## 1. Service Level Indicators
@@ -16,7 +16,7 @@
 | --- | --- | --- |
 | Availability | Successful `GET /health` probes / all probes | Compose healthcheck, Prometheus (from P7.1) |
 
-| Correctness | Calls answered with `n + 1` and logged and published exactly once: `computed + replayed` among calls that did not fail | Unit and contract tests; `successor_calls_total{outcome}` |
+| Correctness | Calls answered with `n + 1` and logged and published exactly once: `computed + replayed` among calls that did not fail | Unit tests (the whole domain against the digit table and a carry oracle), contract and E2E tests; `successor_calls_total{outcome}` |
 | Availability of calls | 1 − `failed` / all calls | `successor_calls_total{outcome}` |
 | Latency | p99 of `successor_call_duration_seconds` | `successor_call_duration_seconds` |
 
@@ -30,8 +30,10 @@
 | Availability of calls | 99.9% | 1 failed call per 1 000; the caller retries |
 | Latency | p99 below 50 ms | 0.1% of calls slower |
 
-Measured on 2026-10-17 (2000 sequential calls of one task): p50 2.0 ms,
-p99 5.7 ms, maximum 42.3 ms; 0 failed calls.
+Measured on 2026-10-26 with successor 0.2.0 (2000 sequential calls of one
+task, each through a digit service, 200 of them also through `carry`):
+p50 2.64 ms, p99 7.11 ms, maximum 50.5 ms; 0 failed calls. With the native
+`+` of 0.1.0 (2026-10-17): p50 2.0 ms, p99 5.7 ms, maximum 42.3 ms.
 
 ## 3. Error Budget Policy
 

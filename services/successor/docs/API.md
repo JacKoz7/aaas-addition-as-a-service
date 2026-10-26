@@ -1,8 +1,9 @@
 <!-- GENERATED FILE: the events section is generated from contracts/events
      by `make api-md` (scripts/service-api.py) and checked by
      `make contracts-check`, the gRPC section from contracts/proto by the
-     same tool; the HTTP section is kept in sync by hand with CLAUDE.md 4.3
-     (ADR-0016, ADR-0020). Do not add content
+     same tool; the HTTP section and the status list of the gRPC section
+     are kept in sync by hand with CLAUDE.md 4.3 (ADR-0016, ADR-0020,
+     ADR-0033). Do not add content
      that is not in a contract. The native API documentation is published
      by `make docs`. -->
 # API Reference — `successor`
@@ -13,13 +14,13 @@
 | Component | `successor` |
 | Owning Team | Arithmetic Excellence Center (AEC) |
 | Classification | INTERNAL |
-| Service Version | 0.1.0 |
+| Service Version | 0.2.0 |
 
 ## 1. HTTP (port 8080)
 
 | Method | Path | Description | Response |
 | --- | --- | --- | --- |
-| `POST` | `/v1/next` | `Next` of `CLAUDE.md` 4.3 over HTTP/JSON for the ledger until P3.3 (`TEMPORARY(P3.3)`; gRPC from P2.13): body `{ "n": <integer 0..199997>, "taskId": <lowercase UUID> }`, optional `traceparent` header | `200 { "n": n + 1 }`; `400` malformed body or non-integer `n`; `413` body above 4 KiB; `422` `n` outside the domain or malformed `taskId`; `503` CouchDB or Kafka unavailable (retry the call) |
+| `POST` | `/v1/next` | `Next` of `CLAUDE.md` 4.3 over HTTP/JSON for the ledger until P3.3 (`TEMPORARY(P3.3)`; the gRPC form is section 2): body `{ "n": <integer 0..199997>, "taskId": <lowercase UUIDv7> }`, optional `traceparent` header | `200 { "n": n + 1 }`; `400` malformed body or non-integer `n`; `413` body above 4 KiB; `422` `n` outside the domain or a `taskId` that is not a lowercase UUIDv7; `503` a digit service, `carry`, CouchDB or Kafka unavailable (retry the call) |
 | `GET` | `/health` | Liveness and readiness | `200 { "status": "ok", "checks": { "database": "ok", "broker": "ok" } }`, `503` when a check fails |
 | `GET` | `/metrics` | Prometheus metrics (`successor_calls_total{outcome}`, `successor_call_duration_seconds`, `successor_dependency_failures_total{dependency}`, `successor_build_info`) | `200 text/plain; version=0.0.4` |
 
@@ -27,14 +28,18 @@ Errors use RFC 9457 (`application/problem+json`). Other paths answer `404`,
 other methods on these paths `405`.
 
 A call is idempotent per `(taskId, n)`: repeating it returns the same
-result and publishes the same event (same `eventId`) again.
+result and publishes the same event (same `eventId`) again. Both
+interfaces compute `n + 1` through the digit services and, for a units
+digit 9, `carry`.
 
-## 2. gRPC
+## 2. gRPC (port 9090)
 
-Not served yet: the contract below is implemented on port 9090 by P2.13,
-when the successor starts querying the digit services and `carry`. Until
-P3.3, when the ledger stops calling the successor, `POST /v1/next` above
-remains available (`TEMPORARY(P3.3)`).
+Served from successor 0.2.0, plain HTTP/2 without TLS. Statuses:
+`INVALID_ARGUMENT` when `task_id` is not a lowercase UUIDv7;
+`OUT_OF_RANGE` when `n` is above 199 997; `UNAVAILABLE` when a digit
+service, `carry`, CouchDB or Kafka failed, or while the service stops
+(retry the call). A `traceparent` custom metadata entry is continued.
+Other methods answer `UNIMPLEMENTED`.
 
 <!-- BEGIN GENERATED: grpc (scripts/service-api.py, do not edit) -->
 ### `aaas.successor.v1.SuccessorService`

@@ -6,8 +6,8 @@
 | Component | `successor` |
 | Owning Team | Arithmetic Excellence Center (AEC) |
 | Classification | INTERNAL |
-| Document Version | 1.0 |
-| Last Reviewed | 2026-10-17 |
+| Document Version | 1.1 |
+| Last Reviewed | 2026-10-26 |
 
 ## 1. Quick Reference
 
@@ -17,6 +17,7 @@
 | Logs | `make logs SVC=successor` |
 | Health | `docker compose exec successor wget -qO- http://127.0.0.1:8080/health` |
 | Metrics | `GET /metrics` on port 8080 |
+| One gRPC call | `docker run --rm --network aaas-services -v "$PWD/contracts/proto:/proto:ro" bufbuild/buf:1.74.0 curl --schema /proto --protocol grpc --http2-prior-knowledge -d '{"n":199,"taskId":"<uuidv7>"}' http://successor:9090/aaas.successor.v1.SuccessorService/Next` |
 | Restart | `docker compose restart successor` |
 | Rebuild | `make build-successor && make up` |
 
@@ -49,17 +50,28 @@ within 1 s).
 
 - **Meaning**: `successor_calls_total{outcome="failed"}` and
   `successor_dependency_failures_total{dependency}` grow; the log has
-  `"msg":"successor call failed"` with `dependency` (`couchdb` or `kafka`)
-  and `error`. The caller receives a 503 problem and retries; additions
-  slow down but stay correct.
+  `"msg":"successor call failed"` with `dependency` (`couchdb`, `kafka`,
+  `carry` or `digit-0` … `digit-9`) and `error`. The caller receives a 503
+  problem (HTTP) or `UNAVAILABLE` (gRPC) and retries; additions slow down
+  but stay correct. `/health` stays green for a digit or carry outage: the
+  service itself works, and the failing dependency has its own health
+  check.
 - **Diagnosis**:
   1. `dependency` of the log line.
   2. CouchDB: `make ps`, `docker compose logs successor-db`, free space of
      the `successor-data` volume (`docker system df -v`).
   3. Kafka: `docker compose exec redpanda rpk cluster health`; librdkafka
      lines in the log (`"msg":"librdkafka"`).
-- **Remediation**: restore the dependency; nothing else is needed, retried
-  calls are answered from the call log.
+  4. `digit-<d>`: `make ps`, `make contract-digit-<d>`; an `error` such as
+     `the reply is for digit 4` means the service answers outside its
+     contract (a wrong row in its database).
+  5. `carry`: `make ps`, `make logs SVC=carry` (its own failures name the
+     digit service it could not reach); `no answer within 2 s` means
+     carry did not answer in time, `GrpcInvalidArgument` a defect of the
+     request (escalate to AEC).
+- **Remediation**: restore the dependency; nothing else is needed: the
+  connection to carry is re-established within 200 ms, and retried calls
+  are answered from the call log.
 - **Escalation**: PEG for Redpanda, AEC otherwise.
 
 ### 2.3 Many replayed calls
@@ -76,8 +88,9 @@ within 1 s).
 
 - **Meaning**: `successor_calls_total{outcome="rejected"}` grows; the log
   has `"argument outside the domain"`. A caller asked for the successor of
-  a number outside `0..199997`, or sent a malformed body: a defect of the
-  caller.
+  a number outside `0..199997`, or sent a malformed body or a `taskId`
+  that is not a lowercase UUIDv7 (`INVALID_ARGUMENT` over gRPC, not
+  logged): a defect of the caller.
 - **Escalation**: TIO.
 
 ## 3. Database (CouchDB, container)
@@ -101,4 +114,6 @@ docker compose exec successor-db curl -s -u successor:"$SUCCESSOR_DB_PASSWORD" \
   no consumer yet).
 - **In-flight additions**: a call is answered only after it is logged and
   published, so stopping the service at any moment leaves the caller to
-  retry the same call, which is safe.
+  retry the same call, which is safe. On SIGTERM the service stops
+  accepting HTTP connections, answers new gRPC calls with `UNAVAILABLE`
+  and gives the calls in progress up to 8 s.
