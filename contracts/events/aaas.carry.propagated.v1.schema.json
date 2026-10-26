@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:aaas:events:aaas.carry.propagated.v1",
+  "$comment": "Component: contracts. Owning Team: Arithmetic Excellence Center (AEC). Classification: INTERNAL. Related Docs: CLAUDE.md 3 (step 7) and 4.2, ADR-0013, ADR-0032, contracts/proto/aaas/carry/v1/carry.proto, contracts/events/topics.psv.",
+  "title": "aaas.carry.propagated.v1",
+  "description": "Published by carry once per propagated carry of a task, after the propagation is recorded in its Mnesia log. Audit trail of the carries of the Peano arithmetic: a successor call whose units digit wraps from 9 to 0 produces one of these events. No service consumes it yet.",
+  "allOf": [
+    {
+      "$ref": "urn:aaas:events:envelope:v1"
+    }
+  ],
+  "properties": {
+    "type": {
+      "description": "Event type of this schema.",
+      "const": "aaas.carry.propagated"
+    },
+    "version": {
+      "description": "Major version of this schema.",
+      "const": 1
+    },
+    "producer": {
+      "description": "The only service allowed to publish this event (contracts/events/topics.psv).",
+      "const": "carry"
+    },
+    "taskId": {
+      "description": "Addition task the carry was propagated for; never null for this event.",
+      "$ref": "urn:aaas:events:envelope:v1#/$defs/uuidV7"
+    },
+    "payload": {
+      "description": "The request and the result of one carry propagation (CarryService.Propagate).",
+      "type": "object",
+      "required": [
+        "digits",
+        "position",
+        "result"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "digits": {
+          "description": "Decimal digits of the number before the carry, least significant first (index 0 is the units digit).",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 6,
+          "items": {
+            "description": "One decimal digit.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9
+          }
+        },
+        "position": {
+          "description": "Index of the digit that received the carry, from 0 to the number of digits; equal to the number of digits when a new most significant digit was created.",
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "result": {
+          "description": "Decimal digits after the carry, least significant first: the number plus 10 to the power of position. One element longer than digits when the carry passed the highest digit.",
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 7,
+          "items": {
+            "description": "One decimal digit.",
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9
+          }
+        }
+      }
+    }
+  }
+}

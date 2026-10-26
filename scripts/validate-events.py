@@ -61,7 +61,8 @@ Business Justification:
 Owner: Platform Enablement Guild (PEG)
 Since: validate-events 0.1.0
 Versions: 0.1.0 (P1.3) first release; 0.2.0 (P1.5) ``--events`` mode;
-    0.3.0 (P1.6) truth check of successor calls.
+    0.3.0 (P1.6) truth check of successor calls; 0.4.0 (P2.13a) truth
+    check of carry propagations.
 See Also: ADR-0013, Makefile target ``contracts-check``, scripts/docs-portal.py.
 """
 
@@ -311,7 +312,11 @@ def check_truth(event: dict[str, Any]) -> list[str]:
     Description:
         A payload with ``a``, ``b`` and ``result`` must satisfy
         ``result == a + b``; a payload with ``n`` and ``result`` (a
-        successor call) must satisfy ``result == n + 1``. A payload with ``hash`` must carry the SHA-256
+        successor call) must satisfy ``result == n + 1``. A payload with
+        ``digits``, ``position`` and ``result`` (a carry propagation, digits
+        least significant first) must satisfy ``value(result) ==
+        value(digits) + 10 ** position`` with ``position <= len(digits)``.
+        A payload with ``hash`` must carry the SHA-256
         of ``prevHash|taskId|a|b|result|recordedAt`` (ADR-0013), and the
         entry with ``sequence`` 1 must have the genesis ``prevHash``.
 
@@ -341,8 +346,12 @@ def check_truth(event: dict[str, Any]) -> list[str]:
         ['result 6 is not 2 + 3']
         >>> check_truth({"taskId": "t", "payload": {"n": 9, "result": 11}})
         ['result 11 is not 9 + 1']
+        >>> check_truth({"taskId": "t", "payload": {"digits": [0, 9], "position": 1, "result": [0, 0, 1]}})
+        []
+        >>> check_truth({"taskId": "t", "payload": {"digits": [0, 1], "position": 1, "result": [0, 1]}})
+        ['result [0, 1] is not [0, 1] plus a carry at position 1']
 
-    See Also: ledger_hash.
+    See Also: ledger_hash, digits_value.
     """
     payload = event.get("payload", {})
     problems = []
@@ -350,12 +359,56 @@ def check_truth(event: dict[str, Any]) -> list[str]:
         problems.append(f"result {payload['result']} is not {payload['a']} + {payload['b']}")
     if {"n", "result"} <= payload.keys() and payload["result"] != payload["n"] + 1:
         problems.append(f"result {payload['result']} is not {payload['n']} + 1")
+    if {"digits", "position", "result"} <= payload.keys():
+        digits, position, result = payload["digits"], payload["position"], payload["result"]
+        if position > len(digits) or digits_value(result) != digits_value(digits) + 10**position:
+            problems.append(f"result {result} is not {digits} plus a carry at position {position}")
     if "hash" in payload:
         if payload["hash"] != ledger_hash(event["taskId"], payload):
             problems.append("hash does not match prevHash|taskId|a|b|result|recordedAt")
         if payload.get("sequence") == 1 and payload.get("prevHash") != GENESIS_HASH:
             problems.append("the first entry must have the genesis prevHash (64 zeros)")
     return problems
+
+
+def digits_value(digits: list[int]) -> int:
+    """Compute the value of decimal digits listed least significant first.
+
+    Summary:
+        Turns the digit list of a carry event into a number.
+
+    Description:
+        Index 0 is the units digit, so ``[0, 2]`` is 20. Native arithmetic
+        is allowed in this test tooling (CLAUDE.md section 1, rule 5).
+
+    Business Justification:
+        The truth check of carry propagations compares the numbers before
+        and after the carry.
+
+    Parameters:
+        digits (list[int]): decimal digits, least significant first.
+
+    Returns:
+        int: the number they denote; 0 for an empty list.
+
+    Errors:
+        None.
+
+    Side Effects:
+        None.
+
+    Complexity: O(d) time and O(1) memory for d digits.
+    Thread Safety: safe (no shared state).
+    Owner: Platform Enablement Guild (PEG)
+    Since: validate-events 0.4.0
+
+    Example:
+        >>> digits_value([0, 0, 0, 0, 0, 1])
+        100000
+
+    See Also: check_truth.
+    """
+    return sum(digit * 10**index for index, digit in enumerate(digits))
 
 
 def ledger_hash(task_id: str, entry: dict[str, Any]) -> str:
