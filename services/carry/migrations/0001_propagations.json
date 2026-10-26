@@ -1,0 +1,38 @@
+{
+  "$comment": "SPDX-License-Identifier: MIT. Copyright (c) 2026 AaaS Contributors. Component: carry. Module: migrations/0001_propagations.json. Owning Team: Arithmetic Excellence Center (AEC). Classification: INTERNAL. Purpose: creates the Mnesia table of the propagation log. Related Docs: services/carry/README.md, ADR-0032.",
+  "description": "Propagation log of the carry service: table carry_propagations, one record per propagated carry of a task.",
+  "operations": [
+    {
+      "createTable": {
+        "name": "carry_propagations",
+        "type": "set",
+        "storage": "disc_only_copies",
+        "attributes": [
+          "key",
+          "task_id",
+          "digits",
+          "position",
+          "result",
+          "event_id",
+          "event",
+          "propagated_at",
+          "trace_id"
+        ],
+        "documentation": {
+          "table": "carry_propagations: one record per Propagate call of a task. The key {task_id, digits, position} is the natural key of a call: within one addition the successor asks for the carry of each number ending in 9 once, so a retried call finds its own record. Stored on disk only (dets, no copy in memory). Records are never updated; the retention job deletes those older than AAAS_RETENTION_HOURS.",
+          "attributes": {
+            "key": "{task_id, digits, position}: the natural key of the call.",
+            "task_id": "Task the call was made for (lowercase UUIDv7, binary).",
+            "digits": "Digits of the request, least significant first (list of 0..9).",
+            "position": "Position that received the carry, 0..length(digits).",
+            "result": "Digits after the carry, least significant first.",
+            "event_id": "eventId of the aaas.carry.propagated.v1 event of the call (UUIDv7).",
+            "event": "That event exactly as published (JSON text); a retried call publishes it again.",
+            "propagated_at": "Unix time in milliseconds when the call was recorded; read by the retention job.",
+            "trace_id": "Trace identifier of the call (32 hexadecimal digits)."
+          }
+        }
+      }
+    }
+  ]
+}

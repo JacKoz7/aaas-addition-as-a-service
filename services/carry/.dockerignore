@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       carry
+# Module:          .dockerignore
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Keeps documentation, git metadata, host build output and
+#                  host copies of the generated code out of the Docker build
+#                  context (gen/ comes from the `contracts` context).
+# Related Docs:    services/carry/Dockerfile
+
+.git
+docs/
+README.md
+_build/
+deps/
+gen/
+doc/
+.mixhome/
+.hexhome/
+**/*.log

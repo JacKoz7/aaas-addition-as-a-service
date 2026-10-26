@@ -1,0 +1,17 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 AaaS Contributors
+#
+# Component:       carry
+# Module:          .gitignore
+# Owning Team:     Arithmetic Excellence Center (AEC)
+# Classification:  INTERNAL
+# Purpose:         Build output of Mix and host copies of the generated gRPC
+#                  code (the source of truth is contracts/gen/elixir).
+# Related Docs:    services/carry/Dockerfile, ADR-0020
+
+_build/
+deps/
+gen/
+doc/
+.mixhome/
+.hexhome/

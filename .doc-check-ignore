@@ -43,3 +43,8 @@ contracts/gen/*
 # comment; the package versions they pin are documented in the service's
 # DEPENDENCIES.md (ADR-0029).
 */manifest.toml
+
+# Mix lock files are generated and rewritten by `mix deps.get`, which drops
+# any comment; the package versions they pin are documented in the
+# service's DEPENDENCIES.md (ADR-0032).
+*/mix.lock

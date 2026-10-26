@@ -702,6 +702,56 @@ services:
     # volume, owned by the image's non-root user (UID 10001).
     volumes:
       - digit-9-data:/data
+  # --- carry (elixir, AEC) ---------------------------------
+  # Propagates a carry to the higher digits through the digit services
+  # (CLAUDE.md 3, step 7; ADR-0032); gRPC on 9090, called by successor from
+  # P2.13b. No gateway route.
+  carry:
+    build:
+      # Relative to compose/, the directory of the included file.
+      context: ../services/carry
+      dockerfile: Dockerfile
+      target: runtime
+      # The generated gRPC code (contracts/gen/elixir), ADR-0020.
+      additional_contexts:
+        contracts: ../contracts
+    image: aaas/carry:dev
+    profiles: [services]
+    # `services` only: its callers, the digit services and Redpanda are
+    # there, and Mnesia is embedded in the process (no `data` network, no
+    # password).
+    networks: [services]
+    environment:
+      AAAS_SERVICE: carry
+      AAAS_ENV: ${AAAS_ENV:-local}
+      AAAS_BOOTSTRAP: ${AAAS_BOOTSTRAP:-env}
+      AAAS_KAFKA_BROKERS: redpanda:9092
+      AAAS_DIGIT_URL_TEMPLATE: http://digit-{digit}:8080
+      AAAS_DB_DIR: /data/mnesia
+      AAAS_LOG_LEVEL: info
+    # VM language (Elixir on the BEAM): default limit for interpreted and VM
+    # services (CLAUDE.md 6.2). Measured usage: services/carry/docs/CAPACITY.md.
+    mem_limit: 128m
+    cpus: 0.5
+    # SIGTERM suspends the gRPC listener and gives the calls in progress up
+    # to 5 s (Carry.Application.prep_stop/1).
+    stop_grace_period: 10s
+    healthcheck:
+      # Exec form; wget is busybox's, part of the Alpine runtime image.
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 5
+      start_period: 20s
+    depends_on:
+      redpanda:
+        condition: service_healthy
+      redpanda-topics:
+        condition: service_completed_successfully
+    # Mnesia is embedded in the service process; its schema and tables live
+    # in this volume, owned by the image's non-root user (UID 10001).
+    volumes:
+      - carry-data:/data
 # AAAS:VOLUMES
 volumes:
   expression-assembler-data: {}
@@ -718,3 +768,4 @@ volumes:
   digit-7-data: {}
   digit-8-data: {}
   digit-9-data: {}
+  carry-data: {}
