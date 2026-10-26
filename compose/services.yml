@@ -182,18 +182,25 @@ services:
       context: ../services/successor
       dockerfile: Dockerfile
       target: runtime
+      # The generated gRPC messages (contracts/gen/haskell), ADR-0020.
+      additional_contexts:
+        contracts: ../contracts
     image: aaas/successor:dev
     profiles: [services]
-    # `services` for its callers and Redpanda, `data` for its own database.
+    # `services` for its callers, the digit services, carry and Redpanda,
+    # `data` for its own database.
     networks: [services, data]
     environment:
       AAAS_SERVICE: successor
       AAAS_ENV: ${AAAS_ENV:-local}
       AAAS_BOOTSTRAP: ${AAAS_BOOTSTRAP:-env}
+      AAAS_GRPC_PORT: 9090
       AAAS_KAFKA_BROKERS: redpanda:9092
       AAAS_DB_URL: http://successor-db:5984
       AAAS_DB_USER: successor
       SUCCESSOR_DB_PASSWORD: ${SUCCESSOR_DB_PASSWORD:-change-me}
+      AAAS_DIGIT_URL_TEMPLATE: http://digit-{digit}:8080
+      AAAS_CARRY_ADDR: carry:9090
     # Compiled language (GHC native code): default limit for compiled
     # services (CLAUDE.md 6.2); the GHC heap is capped at 40 MB (-M40m in
     # successor.cabal). Measured usage: services/successor/docs/CAPACITY.md.
@@ -214,6 +221,30 @@ services:
         condition: service_healthy
       redpanda-topics:
         condition: service_completed_successfully
+      # n + 1 is computed by the digit services and carry (CLAUDE.md 3,
+      # step 7); the service starts without them but cannot compute.
+      carry:
+        condition: service_healthy
+      digit-0:
+        condition: service_healthy
+      digit-1:
+        condition: service_healthy
+      digit-2:
+        condition: service_healthy
+      digit-3:
+        condition: service_healthy
+      digit-4:
+        condition: service_healthy
+      digit-5:
+        condition: service_healthy
+      digit-6:
+        condition: service_healthy
+      digit-7:
+        condition: service_healthy
+      digit-8:
+        condition: service_healthy
+      digit-9:
+        condition: service_healthy
   successor-db:
     # CouchDB 3.5.1 with the AaaS configuration copied in (single node,
     # n = 1); see services/successor/couchdb/Dockerfile.
