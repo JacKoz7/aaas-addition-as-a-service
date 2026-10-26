@@ -28,6 +28,7 @@
 module Successor.Config
   ( Config (..),
     loadConfig,
+    parseAddress,
   )
 where
 
@@ -52,6 +53,13 @@ data Config = Config
     environment :: Text,
     -- | @AAAS_HTTP_PORT@, default @8080@.
     httpPort :: Int,
+    -- | @AAAS_GRPC_PORT@, default @9090@.
+    grpcPort :: Int,
+    -- | @AAAS_DIGIT_URL_TEMPLATE@, default @http://digit-{digit}:8080@: the
+    -- base URL of each digit service, @{digit}@ replaced by the digit.
+    digitUrlTemplate :: Text,
+    -- | @AAAS_CARRY_ADDR@, default @carry:9090@, split into host and port.
+    carryAddress :: (String, Int),
     -- | @AAAS_KAFKA_BROKERS@, default @redpanda:9092@.
     brokers :: Text,
     -- | @AAAS_DB_URL@, default @http://successor-db:5984@.
@@ -86,8 +94,10 @@ data Config = Config
 -- __Returns:__ the configuration, or the first error.
 --
 -- __Errors:__ @Left@ for @AAAS_BOOTSTRAP=platform@ or another mode, a
--- missing @SUCCESSOR_DB_PASSWORD@, a port outside @1..65535@, an unknown
--- log level or a Kafka log level outside @0..7@.
+-- missing @SUCCESSOR_DB_PASSWORD@, a port outside @1..65535@ (or the same
+-- port for HTTP and gRPC), a digit URL template without @{digit}@, a
+-- carry address that is not @host:port@, an unknown log level or a Kafka
+-- log level outside @0..7@.
 --
 -- __Side Effects:__ None of its own (the lookup is the caller's).
 --
@@ -116,6 +126,13 @@ loadConfig lookupVar = do
   port <- case readMaybe (get "AAAS_HTTP_PORT" "8080") of
     Just p | p >= 1 && p <= 65535 -> Right p
     _ -> Left "AAAS_HTTP_PORT: expected a port number"
+  rpcPort <- case readMaybe (get "AAAS_GRPC_PORT" "9090") of
+    Just p | p >= 1 && p <= 65535 && p /= port -> Right p
+    _ -> Left "AAAS_GRPC_PORT: expected a port number other than AAAS_HTTP_PORT"
+  template <- case Text.pack (get "AAAS_DIGIT_URL_TEMPLATE" "http://digit-{digit}:8080") of
+    t | "{digit}" `Text.isInfixOf` t -> Right t
+    _ -> Left "AAAS_DIGIT_URL_TEMPLATE: expected a URL containing {digit}"
+  carry <- parseAddress (Text.pack (get "AAAS_CARRY_ADDR" "carry:9090"))
   level <- maybe (Left "AAAS_LOG_LEVEL: expected debug, info, warn, error or fatal") Right (parseLevel (Text.pack (get "AAAS_LOG_LEVEL" "info")))
   kafkaLevel <- case readMaybe (get "AAAS_KAFKA_LOG_LEVEL" "4") of
     Just l | l >= 0 && l <= 7 -> Right l
@@ -128,6 +145,9 @@ loadConfig lookupVar = do
       { service = Text.pack (get "AAAS_SERVICE" "successor"),
         environment = Text.pack (get "AAAS_ENV" "local"),
         httpPort = port,
+        grpcPort = rpcPort,
+        digitUrlTemplate = template,
+        carryAddress = carry,
         brokers = Text.pack (get "AAAS_KAFKA_BROKERS" "redpanda:9092"),
         dbUrl = Text.pack (get "AAAS_DB_URL" "http://successor-db:5984"),
         dbUser = Text.pack (get "AAAS_DB_USER" "successor"),
@@ -140,3 +160,46 @@ loadConfig lookupVar = do
     get name def = case lookupVar name of
       Just v | not (null v) -> v
       _ -> def
+
+-- | Splits @host:port@.
+--
+-- __Description:__ The host is everything before the last colon; the port
+-- must be in @1..65535@.
+--
+-- __Business Justification:__ @AAAS_CARRY_ADDR@ is checked at startup, so
+-- a typo stops the service instead of failing every carry.
+--
+-- __Parameters:__
+--
+-- * @address@: for example @carry:9090@.
+--
+-- __Returns:__ @(host, port)@, or an error message.
+--
+-- __Errors:__ @Left@ without a host or with an invalid port.
+--
+-- __Side Effects:__ None.
+--
+-- __Complexity:__ O(length of the address).
+--
+-- __Thread Safety:__ safe.
+--
+-- __Owner:__ Arithmetic Excellence Center (AEC).
+--
+-- __Since:__ successor 0.2.0
+--
+-- __Example:__
+--
+-- >>> parseAddress "carry:9090"
+-- Right ("carry",9090)
+-- >>> parseAddress "carry"
+-- Left "AAAS_CARRY_ADDR: expected host:port"
+--
+-- __See Also:__ 'loadConfig', 'Successor.Carry.withCarryClient'.
+parseAddress :: Text -> Either Text (String, Int)
+parseAddress address = case Text.breakOnEnd ":" address of
+  (hostColon, port)
+    | Text.length hostColon > 1,
+      Just p <- readMaybe (Text.unpack port),
+      p >= 1 && p <= 65535 ->
+        Right (Text.unpack (Text.dropEnd 1 hostColon), p)
+  _ -> Left "AAAS_CARRY_ADDR: expected host:port"

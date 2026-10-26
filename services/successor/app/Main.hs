@@ -6,19 +6,23 @@
 -- Owning Team:     Arithmetic Excellence Center (AEC)
 -- Classification:  INTERNAL
 -- Purpose:         Process entry point of the successor service:
---                  configuration, CouchDB migrations, Kafka producer, HTTP
---                  server and graceful shutdown on SIGTERM.
+--                  configuration, CouchDB migrations, Kafka producer, the
+--                  digit and carry clients, HTTP and gRPC servers and
+--                  graceful shutdown on SIGTERM.
 -- Related Docs:    services/successor/README.md, services/successor/docs/RUNBOOK.md,
---                  CLAUDE.md 6.1, ADR-0016
+--                  CLAUDE.md 6.1, ADR-0016, ADR-0033
 
 -- | Entry point of the successor service.
 --
 -- __Description:__ Startup order: configuration, logger, CouchDB
 -- migrations (retried for up to 60 s while the database starts), Kafka
--- producer, metrics, HTTP server on port 8080. SIGTERM and SIGINT stop
--- accepting connections, let requests in flight finish for up to 8 s,
--- flush the producer and exit 0; a watchdog exits 1 after 9 s if any of
--- that hangs. A startup failure exits 1 with a @fatal@ log line.
+-- producer, metrics, the digit client and the connection to the carry
+-- service (opened on the first carry), the gRPC server on port 9090 and
+-- the HTTP server on port 8080. SIGTERM and SIGINT stop accepting HTTP
+-- connections and new gRPC calls, let requests and calls in progress
+-- finish for up to 8 s, flush the producer and exit 0; a watchdog exits 1
+-- after 9 s if any of that hangs. A startup failure exits 1 with a
+-- @fatal@ log line.
 --
 -- __Business Justification:__ Migrations at startup and graceful shutdown
 -- within 10 s (CLAUDE.md 6.1).
@@ -32,6 +36,7 @@ module Main (main) where
 
 import Control.Concurrent (forkIO, threadDelay)
 import Control.Exception (SomeException, try)
+import Control.Monad (void)
 import Data.Aeson (toJSON)
 import Data.Text (Text)
 import Data.Text qualified as Text
@@ -44,8 +49,11 @@ import Network.Wai.Handler.Warp
   )
 import Successor.Api (Env (..), application)
 import Successor.CallLog (migrate, newCallLog, ping, record)
+import Successor.Carry (propagate, withCarryClient)
 import Successor.Config (Config (..), loadConfig)
+import Successor.Digits (askNext, newDigitClient)
 import Successor.Event qualified as Event
+import Successor.Grpc (awaitIdle, newDrain, startDraining, withGrpcServer)
 import Successor.Identifiers (newUuidV7, nowMillis)
 import Successor.Log (Level (..), Logger, logMsg, newLogger)
 import Successor.Metrics (newMetrics, render)
@@ -55,6 +63,7 @@ import System.Environment (getEnvironment)
 import System.Exit (ExitCode (..), exitWith)
 import System.Posix.Process (exitImmediately)
 import System.Posix.Signals (Handler (Catch), installHandler, sigINT, sigTERM)
+import System.Timeout (timeout)
 
 -- | Version of the service, as in CHANGELOG.md and the OCI label.
 --
@@ -66,7 +75,7 @@ import System.Posix.Signals (Handler (Catch), installHandler, sigINT, sigTERM)
 --
 -- __Since:__ successor 0.1.0
 version :: Text
-version = "0.1.0"
+version = "0.2.0"
 
 -- | Logs a fatal error and exits with status 1.
 --
@@ -179,35 +188,50 @@ main = do
   logMsg logger Info Nothing Nothing "database ready" [("migrationsApplied", toJSON applied)]
   publisher <- newPublisher logger (brokers config) (kafkaLogLevel config) >>= either (die' logger . ("kafka: " <>)) pure
   metrics <- newMetrics version
-  let deps =
-        Deps
-          { recordCall = record db,
-            publishEvent = publish publisher Event.topic,
-            clock = nowMillis,
-            freshId = newUuidV7
-          }
-      appEnv =
-        Env
-          { deps = deps,
-            logger = logger,
-            metrics = metrics,
-            checks = [("database", ping db), ("broker", brokerReachable publisher Event.topic)],
-            renderMetrics = render
-          }
-      onStop closeSocket = do
-        let handler name = Catch $ do
-              logMsg logger Info Nothing Nothing "stop requested" [("signal", toJSON (name :: Text))]
-              _ <- forkIO (threadDelay 9000000 >> exitImmediately (ExitFailure 1))
-              closeSocket
-        _ <- installHandler sigTERM (handler "SIGTERM") Nothing
-        _ <- installHandler sigINT (handler "SIGINT") Nothing
-        pure ()
-      settings =
-        setPort (httpPort config)
-          . setGracefulShutdownTimeout (Just 8)
-          . setInstallShutdownHandler onStop
-          $ defaultSettings
-  logMsg logger Info Nothing Nothing "successor started" [("version", toJSON version), ("httpPort", toJSON (httpPort config))]
-  runSettings settings (application appEnv)
+  digits <- newDigitClient (digitUrlTemplate config)
+  drain <- newDrain
+  let (carryHost, carryPort) = carryAddress config
+  withCarryClient carryHost carryPort $ \carry -> do
+    let deps =
+          Deps
+            { recordCall = record db,
+              askDigit = askNext digits,
+              propagateCarry = propagate carry,
+              publishEvent = publish publisher Event.topic,
+              clock = nowMillis,
+              freshId = newUuidV7
+            }
+        appEnv =
+          Env
+            { deps = deps,
+              logger = logger,
+              metrics = metrics,
+              checks = [("database", ping db), ("broker", brokerReachable publisher Event.topic)],
+              renderMetrics = render
+            }
+        onStop closeSocket = do
+          let handler name = Catch $ do
+                logMsg logger Info Nothing Nothing "stop requested" [("signal", toJSON (name :: Text))]
+                _ <- forkIO (threadDelay 9000000 >> exitImmediately (ExitFailure 1))
+                startDraining drain
+                closeSocket
+          _ <- installHandler sigTERM (handler "SIGTERM") Nothing
+          _ <- installHandler sigINT (handler "SIGINT") Nothing
+          pure ()
+        settings =
+          setPort (httpPort config)
+            . setGracefulShutdownTimeout (Just 8)
+            . setInstallShutdownHandler onStop
+            $ defaultSettings
+    withGrpcServer (grpcPort config) appEnv drain $ \_ -> do
+      logMsg
+        logger
+        Info
+        Nothing
+        Nothing
+        "successor started"
+        [("version", toJSON version), ("httpPort", toJSON (httpPort config)), ("grpcPort", toJSON (grpcPort config))]
+      runSettings settings (application appEnv)
+      void (timeout 8000000 (awaitIdle drain))
   closePublisher publisher
   logMsg logger Info Nothing Nothing "successor stopped" []

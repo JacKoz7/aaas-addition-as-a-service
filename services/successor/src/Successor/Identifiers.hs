@@ -31,6 +31,7 @@ module Successor.Identifiers
     uuidV7FromParts,
     newUuidV7,
     isUuid,
+    isUuidV7,
     formatTimestamp,
     nowMillis,
   )
@@ -234,6 +235,48 @@ isUuid t =
     && all (Text.all (\c -> isHexDigit c && (isDigit c || isLower c))) groups
   where
     groups = Text.splitOn "-" t
+
+-- | Whether a text is a lowercase canonical UUID of version 7.
+--
+-- __Description:__ 'isUuid', the version digit @7@ and the RFC 9562
+-- variant (@8@, @9@, @a@ or @b@ as the first digit of the fourth group).
+--
+-- __Business Justification:__ Task identifiers are UUIDv7 (the envelope
+-- schema, @contracts/proto/aaas/successor/v1@); the carry service rejects
+-- any other version, so the successor rejects it first, with the status
+-- of its own contract.
+--
+-- __Parameters:__
+--
+-- * @t@: the candidate.
+--
+-- __Returns:__ 'True' for a lowercase canonical UUIDv7.
+--
+-- __Errors:__ None.
+--
+-- __Side Effects:__ None.
+--
+-- __Complexity:__ O(1).
+--
+-- __Thread Safety:__ safe.
+--
+-- __Owner:__ Arithmetic Excellence Center (AEC).
+--
+-- __Since:__ successor 0.2.0
+--
+-- __Example:__
+--
+-- >>> isUuidV7 "018f3c2e-7b1a-7c3d-9f00-0000000000aa"
+-- True
+-- >>> isUuidV7 "018f3c2e-7b1a-4c3d-9f00-0000000000aa"
+-- False
+--
+-- __See Also:__ 'isUuid'.
+isUuidV7 :: Text -> Bool
+isUuidV7 t =
+  isUuid t
+    && Text.index t 14 == '7'
+    && Text.index t 19 `elem` ['8', '9', 'a', 'b']
 
 -- | Formats Unix milliseconds in the AaaS timestamp form.
 --

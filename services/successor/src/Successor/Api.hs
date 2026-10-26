@@ -6,9 +6,10 @@
 -- Owning Team:     Arithmetic Excellence Center (AEC)
 -- Classification:  INTERNAL
 -- Purpose:         HTTP interface of the successor service on port 8080:
---                  POST /v1/next, GET /health and GET /metrics.
+--                  POST /v1/next, GET /health and GET /metrics; the call
+--                  handling shared with the gRPC interface.
 -- Related Docs:    services/successor/docs/API.md, CLAUDE.md 4.1 (RFC 9457),
---                  4.3 (Next) and 6.1, ADR-0016
+--                  4.3 (Next) and 6.1, ADR-0016, ADR-0033
 
 -- | The HTTP interface.
 --
@@ -16,18 +17,23 @@
 --
 -- * @POST \/v1\/next@ with @{"n": \<integer\>, "taskId": \<uuid\>}@ answers
 --   @200 {"n": n + 1}@: the @Next({n, taskId}) → {n}@ method of CLAUDE.md
---   4.3 over HTTP/JSON for the ledger until P3.3. A @traceparent@
---   header is continued. Problems (RFC 9457): 400 for a malformed body,
---   422 for an argument outside @0..199997@ or a malformed @taskId@, 503
---   when CouchDB or Kafka failed.
+--   4.3 over HTTP/JSON for the ledger until P3.3 (the gRPC form is
+--   'Successor.Grpc'). A @traceparent@ header is continued. Problems
+--   (RFC 9457): 400 for a malformed body, 422 for an argument outside
+--   @0..199997@ or a @taskId@ that is not a lowercase UUIDv7, 503 when
+--   CouchDB, a digit service, the carry service or Kafka failed.
 -- * @GET \/health@: @{"status", "checks": {"database", "broker"}}@, 200 or
 --   503.
 -- * @GET \/metrics@: Prometheus text format.
 --
 -- Other paths answer 404 and other methods 405, as problems.
 --
--- __Business Justification:__ The interface the ledger (P1.7) and later
--- the saga call @b@ times per addition.
+-- 'serveCall' is the handling of one call shared by both interfaces: the
+-- serving span, 'Successor.Service.call', the duration and outcome
+-- metrics and the log lines.
+--
+-- __Business Justification:__ The interface the ledger (P1.7) calls @b@
+-- times per addition until the saga calls the gRPC form (P3.3).
 --
 -- __Thread Safety:__ safe; warp serves requests concurrently.
 --
@@ -37,6 +43,7 @@
 module Successor.Api
   ( Env (..),
     application,
+    serveCall,
     parseNextRequest,
     problem,
   )
@@ -67,11 +74,11 @@ import Network.HTTP.Types
   )
 import Network.Wai (Application, Response, lazyRequestBody, pathInfo, requestHeaders, requestMethod, responseLBS)
 import Successor.Core (describeError)
-import Successor.Identifiers (isUuid)
+import Successor.Identifiers (isUuidV7)
 import Successor.Log (Level (..), Logger, logMsg)
 import Successor.Metrics (Metrics, countCall, countDependencyFailure, observeDuration)
 import Successor.Service (CallRequest (..), Deps, Failure (..), Outcome (..), call)
-import Successor.Trace (childSpan, parseTraceparent)
+import Successor.Trace (TraceContext, childSpan, parseTraceparent)
 
 -- | Everything the application needs.
 --
@@ -135,8 +142,8 @@ problem status title detail =
 -- | Validates the body of @POST /v1/next@.
 --
 -- __Description:__ A JSON object with an integer @n@ (no fraction) and a
--- lowercase UUID @taskId@; other fields are ignored. The range of @n@ is
--- checked later by 'Successor.Core.next'.
+-- lowercase UUIDv7 @taskId@; other fields are ignored. The range of @n@ is
+-- checked later by 'Successor.Core.checkArgument'.
 --
 -- __Business Justification:__ Malformed requests are refused before any
 -- side effect.
@@ -175,8 +182,8 @@ parseNextRequest body = case Aeson.decode body of
       Just (Number s) -> either (const (Left (status400, "n must be an integer"))) Right (floatingOrInteger s :: Either Double Integer)
       _ -> Left (status400, "n must be an integer")
     case KeyMap.lookup "taskId" o of
-      Just (String t) | isUuid t -> Right (n, t)
-      _ -> Left (status422, "taskId must be a lowercase UUID")
+      Just (String t) | isUuidV7 t -> Right (n, t)
+      _ -> Left (status422, "taskId must be a lowercase UUIDv7")
   _ -> Left (status400, "the body must be a JSON object {\"n\": <integer>, \"taskId\": <uuid>}")
 
 -- | The WAI application.
@@ -212,7 +219,7 @@ application :: Env -> Application
 application env req respond = case (pathInfo req, requestMethod req) of
   (["v1", "next"], m) | m == methodPost -> do
     -- TEMPORARY(P3.3): HTTP/JSON for the ledger until the saga counts;
-    -- the gRPC method Next of CLAUDE.md 4.3 is served from P2.13.
+    -- the gRPC method Next of CLAUDE.md 4.3 is served by Successor.Grpc.
     body <- lazyRequestBody req
     if BL.length body > 4096
       then respond (problem status413 "Content Too Large" "the body is limited to 4 KiB")
@@ -240,26 +247,76 @@ application env req respond = case (pathInfo req, requestMethod req) of
     | otherwise -> respond (problem status404 "Not Found" "no such endpoint")
   where
     serve n taskId = do
-      started <- getCurrentTime
-      span' <- childSpan (lookup "traceparent" (requestHeaders req) >>= parseTraceparent . TE.decodeUtf8)
-      result <- call (deps env) (CallRequest n taskId span')
-      finished <- getCurrentTime
-      observeDuration (metrics env) (realToFrac (diffUTCTime finished started))
-      let say level = logMsg (logger env) level (Just taskId) (Just span')
+      let parent = lookup "traceparent" (requestHeaders req) >>= parseTraceparent . TE.decodeUtf8
+      result <- serveCall env n taskId parent
       case result of
-        Right outcome -> do
-          let (label, value) = case outcome of
-                Computed r -> ("computed", r)
-                Replayed r -> ("replayed", r)
-          countCall (metrics env) label
-          say Debug "successor computed" [("n", Aeson.toJSON n), ("result", Aeson.toJSON value), ("outcome", String label)]
-          respond (responseLBS status200 [(hContentType, "application/json")] (Aeson.encode (object ["n" .= value])))
-        Left (InvalidArgument err) -> do
-          countCall (metrics env) "rejected"
-          say Warn "argument outside the domain" [("n", Aeson.toJSON n)]
-          respond (problem status422 "Unprocessable Content" (describeError err))
-        Left (DependencyFailed dependency cause) -> do
-          countCall (metrics env) "failed"
-          countDependencyFailure (metrics env) dependency
-          say Error "successor call failed" [("dependency", String dependency), ("error", String cause)]
+        Right outcome ->
+          respond (responseLBS status200 [(hContentType, "application/json")] (Aeson.encode (object ["n" .= resultOf outcome])))
+        Left (InvalidArgument err) -> respond (problem status422 "Unprocessable Content" (describeError err))
+        Left (DependencyFailed dependency _) ->
           respond (problem status503 "Service Unavailable" ("the " <> dependency <> " dependency is unavailable; retry the call"))
+    resultOf = \case
+      Computed r -> r
+      Replayed r -> r
+
+-- | Serves one validated call, for the HTTP and the gRPC interface.
+--
+-- __Description:__ Starts the serving span (a child of the caller's
+-- context, or a new trace), runs 'Successor.Service.call', observes the
+-- duration and counts the outcome (@computed@, @replayed@, @rejected@ or
+-- @failed@), counts a failed dependency, and logs: a debug line per
+-- success, a warn line for an argument outside the domain, an error line
+-- with the dependency and the cause for a failure.
+--
+-- __Business Justification:__ The same metrics and logs whichever
+-- interface the caller uses.
+--
+-- __Parameters:__
+--
+-- * @env@: the environment.
+-- * @n@: the argument.
+-- * @taskId@: the task (checked by the caller).
+-- * @parent@: the caller's trace context, if valid.
+--
+-- __Returns:__ the result of the call.
+--
+-- __Errors:__ None beyond the result.
+--
+-- __Side Effects:__ those of 'Successor.Service.call'; one log line;
+-- metrics.
+--
+-- __Complexity:__ that of the call.
+--
+-- __Thread Safety:__ safe.
+--
+-- __Owner:__ Arithmetic Excellence Center (AEC).
+--
+-- __Since:__ successor 0.2.0
+--
+-- __Example:__ @serveCall env 199 task Nothing@ returns
+-- @Right (Computed 200)@.
+--
+-- __See Also:__ 'application', 'Successor.Grpc.nextHandler'.
+serveCall :: Env -> Integer -> Text -> Maybe TraceContext -> IO (Either Failure Outcome)
+serveCall env n taskId parent = do
+  started <- getCurrentTime
+  span' <- childSpan parent
+  result <- call (deps env) (CallRequest n taskId span')
+  finished <- getCurrentTime
+  observeDuration (metrics env) (realToFrac (diffUTCTime finished started))
+  let say level = logMsg (logger env) level (Just taskId) (Just span')
+  case result of
+    Right outcome -> do
+      let (label, value) = case outcome of
+            Computed r -> ("computed", r)
+            Replayed r -> ("replayed", r)
+      countCall (metrics env) label
+      say Debug "successor computed" [("n", Aeson.toJSON n), ("result", Aeson.toJSON value), ("outcome", String label)]
+    Left (InvalidArgument _) -> do
+      countCall (metrics env) "rejected"
+      say Warn "argument outside the domain" [("n", Aeson.toJSON n)]
+    Left (DependencyFailed dependency cause) -> do
+      countCall (metrics env) "failed"
+      countDependencyFailure (metrics env) dependency
+      say Error "successor call failed" [("dependency", String dependency), ("error", String cause)]
+  pure result

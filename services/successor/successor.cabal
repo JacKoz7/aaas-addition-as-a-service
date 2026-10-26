@@ -7,14 +7,15 @@ cabal-version: 3.0
 -- Module:          successor.cabal
 -- Owning Team:     Arithmetic Excellence Center (AEC)
 -- Classification:  INTERNAL
--- Purpose:         Cabal package of the successor service: the library with
+-- Purpose:         Cabal package of the successor service: the internal
+--                  library of the generated gRPC messages, the library with
 --                  all logic, the executable, the hspec test suite and the
 --                  doctest suite of the documentation examples.
--- Related Docs:    services/successor/README.md, ADR-0016
+-- Related Docs:    services/successor/README.md, ADR-0016, ADR-0020, ADR-0033
 
 name:          successor
-version:       0.1.0
-synopsis:      AaaS successor: computes n + 1
+version:       0.2.0
+synopsis:      AaaS successor: computes n + 1 through the digit services and carry
 license:       MIT
 author:        AaaS Contributors
 maintainer:    AaaS Contributors
@@ -37,19 +38,41 @@ common language
     LambdaCase
     OverloadedStrings
 
+-- The messages of contracts/gen/haskell (proto-lens-protoc, ADR-0020),
+-- copied to gen/ by the Dockerfile from the `contracts` build context.
+-- Generated code is not edited, formatted or linted; its warnings are off.
+library proto
+  default-language: Haskell2010
+  hs-source-dirs:   gen
+  ghc-options:      -w
+  exposed-modules:
+    Proto.Aaas.Carry.V1.Carry
+    Proto.Aaas.Carry.V1.Carry_Fields
+    Proto.Aaas.Successor.V1.Successor
+    Proto.Aaas.Successor.V1.Successor_Fields
+
+  build-depends:
+    , base                ^>=4.20
+    , proto-lens-runtime  ^>=0.7
+
 library
   import:          warnings, language
   hs-source-dirs:  src
   exposed-modules:
     Successor.Api
     Successor.CallLog
+    Successor.Carry
     Successor.Config
     Successor.Core
+    Successor.Digits
     Successor.Event
+    Successor.Exceptions
+    Successor.Grpc
     Successor.Identifiers
     Successor.Log
     Successor.Metrics
     Successor.Publisher
+    Successor.Rpc
     Successor.Service
     Successor.Trace
 
@@ -60,12 +83,17 @@ library
     , containers          ^>=0.7
     , directory           ^>=1.3
     , filepath            ^>=1.5
+    , grapesy             ^>=1.2
     , http-client         ^>=0.7
     , http-types          ^>=0.12
     , hw-kafka-client     ^>=5.3
+    , lens-family         ^>=2.1
     , prometheus-client   ^>=1.1
+    , proto-lens          ^>=0.7
     , random              ^>=1.2
     , scientific          ^>=0.3
+    , stm                 ^>=2.5
+    , successor:proto
     , text                ^>=2.1
     , time                ^>=1.12
     , wai                 ^>=3.2
@@ -98,9 +126,15 @@ test-suite spec
     , containers
     , directory
     , filepath
+    , grapesy
     , hspec        ^>=2.11
     , http-types
+    , lens-family
+    , network      ^>=3.2
+    , proto-lens
     , successor
+    , successor:proto
     , text
     , wai
     , wai-extra    ^>=3.1
+    , warp

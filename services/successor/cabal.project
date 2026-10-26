@@ -21,3 +21,8 @@ tests: True
 -- Warnings are errors in every build of the service's own package.
 package successor
   ghc-options: -Werror
+
+-- gRPC messages of the service are a few bytes and are sent uncompressed;
+-- without the snappy compression codec no extra C library is needed.
+package grpc-spec
+  flags: -snappy
